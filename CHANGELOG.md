@@ -4,6 +4,10 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Changed
+
+- SARIF output now contains only problems: quantum-safe (INFO) findings are kept out of code-scanning alerts and remain in the JSON, HTML and CBOM reports.
+
 ## [0.1.0] - 2026-10-15
 
 ### Added

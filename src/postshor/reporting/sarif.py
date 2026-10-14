@@ -16,8 +16,10 @@ _SECURITY_SEVERITY = {Severity.CRITICAL: "9.1", Severity.HIGH: "7.5", Severity.M
 def render(result: ScanResult, score: Score) -> str:
     rules: dict[str, dict] = {}
     results = []
-    # SARIF is file-oriented; live-endpoint findings live in the JSON, HTML and CBOM reports.
-    for f in (f for f in result.findings if not f.location.path.startswith("tls://")):
+    # SARIF feeds alert dashboards, so it carries only problems: INFO findings (quantum-safe usage) and
+    # live-endpoint findings stay in the JSON, HTML and CBOM reports.
+    alerts = (f for f in result.findings if f.severity > Severity.INFO and not f.location.path.startswith("tls://"))
+    for f in alerts:
         if f.rule_id not in rules:
             rules[f.rule_id] = {
                 "id": f.rule_id,

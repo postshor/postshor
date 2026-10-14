@@ -48,6 +48,9 @@ def test_sarif_structure(scanned):
     assert all(r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"] for r in run["results"])
     assert not any(r["locations"][0]["physicalLocation"]["artifactLocation"]["uri"].startswith("tls://") for r in run["results"])
     assert all(float(r["properties"]["security-severity"]) >= 0 for r in run["tool"]["driver"]["rules"])
+    # Quantum-safe (INFO) findings are positive evidence, not alerts.
+    assert all(r["properties"]["severity"] != "info" for r in run["results"])
+    assert run["results"], "expected real findings in the vulnerable fixture"
 
 
 def test_html_report_is_self_contained(scanned):
