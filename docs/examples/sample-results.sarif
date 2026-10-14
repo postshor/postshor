@@ -1,0 +1,2527 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "PostShor",
+          "version": "0.1.0",
+          "informationUri": "https://github.com/postshor/postshor",
+          "rules": [
+            {
+              "id": "C-TLS-GROUPS",
+              "name": "CTlsGroups",
+              "shortDescription": {
+                "text": "TLS group list set without a post-quantum hybrid group"
+              },
+              "fullDescription": {
+                "text": "TLS group list set without a post-quantum hybrid group. ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. OpenSSL 3.5+ supports ML-KEM, ML-DSA and SLH-DSA and offers X25519MLKEM768 in TLS by default; liboqs for other algorithms.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. OpenSSL 3.5+ supports ML-KEM, ML-DSA and SLH-DSA and offers X25519MLKEM768 in TLS by default; liboqs for other algorithms."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "CFG-TLS-NO13",
+              "name": "CfgTlsNo13",
+              "shortDescription": {
+                "text": "TLS 1.3 not enabled (post-quantum key exchange requires TLS 1.3)"
+              },
+              "fullDescription": {
+                "text": "TLS 1.3 not enabled (post-quantum key exchange requires TLS 1.3). SSL 3.0 / TLS 1.0 / TLS 1.1 is already insecure today, independent of quantum computing."
+              },
+              "help": {
+                "text": "Replace with TLS 1.3 (required for hybrid post-quantum key exchange).",
+                "markdown": "**Fix:** Replace with TLS 1.3 (required for hybrid post-quantum key exchange)."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "config"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CFG-NGINX-CURVES",
+              "name": "CfgNginxCurves",
+              "shortDescription": {
+                "text": "nginx ssl_ecdh_curve excludes post-quantum hybrid groups"
+              },
+              "fullDescription": {
+                "text": "nginx ssl_ecdh_curve excludes post-quantum hybrid groups. ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "config"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CFG-SSH-KEX",
+              "name": "CfgSshKex",
+              "shortDescription": {
+                "text": "SSH KexAlgorithms set without a post-quantum hybrid"
+              },
+              "fullDescription": {
+                "text": "SSH KexAlgorithms set without a post-quantum hybrid. ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "config"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CS-RSA-ENC",
+              "name": "CsRsaEnc",
+              "shortDescription": {
+                "text": "RSA encryption (.NET)"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Anything encrypted this way can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. .NET 10 adds MLKem, MLDsa and SlhDsa; Bouncy Castle .NET for earlier runtimes.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. .NET 10 adds MLKem, MLDsa and SlhDsa; Bouncy Castle .NET for earlier runtimes."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CS-ECDH",
+              "name": "CsEcdh",
+              "shortDescription": {
+                "text": "ECDH (.NET)"
+              },
+              "fullDescription": {
+                "text": "ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. .NET 10 adds MLKem, MLDsa and SlhDsa; Bouncy Castle .NET for earlier runtimes.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. .NET 10 adds MLKem, MLDsa and SlhDsa; Bouncy Castle .NET for earlier runtimes."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "GO-RSA-ENC",
+              "name": "GoRsaEnc",
+              "shortDescription": {
+                "text": "RSA encryption"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Anything encrypted this way can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "GO-TLS-CURVES",
+              "name": "GoTlsCurves",
+              "shortDescription": {
+                "text": "TLS CurvePreferences pins classical groups only, disabling Go's default hybrid PQ key exchange"
+              },
+              "fullDescription": {
+                "text": "TLS CurvePreferences pins classical groups only, disabling Go's default hybrid PQ key exchange. ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "JVM-RSA-CIPHER",
+              "name": "JvmRsaCipher",
+              "shortDescription": {
+                "text": "RSA encryption (JCA Cipher)"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Anything encrypted this way can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "JVM-ECDH",
+              "name": "JvmEcdh",
+              "shortDescription": {
+                "text": "ECDH key agreement (JCA)"
+              },
+              "fullDescription": {
+                "text": "ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "JS-ECDH",
+              "name": "JsEcdh",
+              "shortDescription": {
+                "text": "ECDH (node:crypto)"
+              },
+              "fullDescription": {
+                "text": "ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "JS-RSA-ENC",
+              "name": "JsRsaEnc",
+              "shortDescription": {
+                "text": "RSA encryption (node:crypto)"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Anything encrypted this way can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+.",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "PY-ECDH",
+              "name": "PyEcdh",
+              "shortDescription": {
+                "text": "ECDH key agreement"
+              },
+              "fullDescription": {
+                "text": "ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA).",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA)."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "PY-RSA-OAEP",
+              "name": "PyRsaOaep",
+              "shortDescription": {
+                "text": "RSA-OAEP encryption"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Anything encrypted this way can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA).",
+                "markdown": "**Fix:** Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA)."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "RS-X25519",
+              "name": "RsX25519",
+              "shortDescription": {
+                "text": "X25519 key agreement"
+              },
+              "fullDescription": {
+                "text": "X25519/X448 key agreement is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Migrate to Hybrid X25519MLKEM768 (keeps X25519, adds ML-KEM-768). Prioritise this: the exposure starts the day data is recorded. Rust options: RustCrypto ml-kem / ml-dsa crates; rustls with aws-lc-rs supports X25519MLKEM768.",
+                "markdown": "**Fix:** Migrate to Hybrid X25519MLKEM768 (keeps X25519, adds ML-KEM-768). Prioritise this: the exposure starts the day data is recorded. Rust options: RustCrypto ml-kem / ml-dsa crates; rustls with aws-lc-rs supports X25519MLKEM768."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "9.1",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "C-RSA-KEYGEN",
+              "name": "CRsaKeygen",
+              "shortDescription": {
+                "text": "RSA key"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. OpenSSL 3.5+ supports ML-KEM, ML-DSA and SLH-DSA and offers X25519MLKEM768 in TLS by default; liboqs for other algorithms.",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. OpenSSL 3.5+ supports ML-KEM, ML-DSA and SLH-DSA and offers X25519MLKEM768 in TLS by default; liboqs for other algorithms."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "C-OSSL3-NAMED-EC",
+              "name": "COssl3NamedEc",
+              "shortDescription": {
+                "text": "EC key (OpenSSL 3 by-name API)"
+              },
+              "fullDescription": {
+                "text": "X25519/X448 key agreement is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with Hybrid X25519MLKEM768 (keeps X25519, adds ML-KEM-768). OpenSSL 3.5+ supports ML-KEM, ML-DSA and SLH-DSA and offers X25519MLKEM768 in TLS by default; liboqs for other algorithms.",
+                "markdown": "**Fix:** Replace with Hybrid X25519MLKEM768 (keeps X25519, adds ML-KEM-768). OpenSSL 3.5+ supports ML-KEM, ML-DSA and SLH-DSA and offers X25519MLKEM768 in TLS by default; liboqs for other algorithms."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CFG-TLS-LEGACY",
+              "name": "CfgTlsLegacy",
+              "shortDescription": {
+                "text": "Legacy SSL/TLS protocol version enabled"
+              },
+              "fullDescription": {
+                "text": "Legacy SSL/TLS protocol version enabled. SSL 3.0 / TLS 1.0 / TLS 1.1 is already insecure today, independent of quantum computing."
+              },
+              "help": {
+                "text": "Replace with TLS 1.3 (required for hybrid post-quantum key exchange).",
+                "markdown": "**Fix:** Replace with TLS 1.3 (required for hybrid post-quantum key exchange)."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "config"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CFG-SSH-RSA-HOSTKEY",
+              "name": "CfgSshRsaHostkey",
+              "shortDescription": {
+                "text": "SSH host key uses RSA/ECDSA"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Signatures could be forged after Q-day; long-lived signing keys need to rotate well before then. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures.",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "config"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CS-RSA",
+              "name": "CsRsa",
+              "shortDescription": {
+                "text": "RSA (.NET)"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. .NET 10 adds MLKem, MLDsa and SlhDsa; Bouncy Castle .NET for earlier runtimes.",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. .NET 10 adds MLKem, MLDsa and SlhDsa; Bouncy Castle .NET for earlier runtimes."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "GO-RSA-KEYGEN",
+              "name": "GoRsaKeygen",
+              "shortDescription": {
+                "text": "RSA key generation"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default.",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "GO-ECDSA",
+              "name": "GoEcdsa",
+              "shortDescription": {
+                "text": "ECDSA"
+              },
+              "fullDescription": {
+                "text": "ECDSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Signatures could be forged after Q-day; long-lived signing keys need to rotate well before then. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default.",
+                "markdown": "**Fix:** Replace with ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "IAC-TLS-PRIVATE-KEY",
+              "name": "IacTlsPrivateKey",
+              "shortDescription": {
+                "text": "Terraform tls_private_key with classical algorithm"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures.",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "config"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "IAC-KMS-ECC",
+              "name": "IacKmsEcc",
+              "shortDescription": {
+                "text": "Cloud KMS / ACM elliptic-curve key"
+              },
+              "fullDescription": {
+                "text": "Elliptic-curve cryptography is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for key agreement; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures.",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for key agreement; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "config"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "JVM-RSA-KEYGEN",
+              "name": "JvmRsaKeygen",
+              "shortDescription": {
+                "text": "RSA key pair generation (JCA)"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs.",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "JVM-ECDSA-SIG",
+              "name": "JvmEcdsaSig",
+              "shortDescription": {
+                "text": "ECDSA signature (JCA)"
+              },
+              "fullDescription": {
+                "text": "ECDSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Signatures could be forged after Q-day; long-lived signing keys need to rotate well before then. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs.",
+                "markdown": "**Fix:** Replace with ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "JS-RSA-KEYGEN",
+              "name": "JsRsaKeygen",
+              "shortDescription": {
+                "text": "RSA key generation (node:crypto)"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+.",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "JS-WEBCRYPTO-ECDSA",
+              "name": "JsWebcryptoEcdsa",
+              "shortDescription": {
+                "text": "ECDSA (WebCrypto)"
+              },
+              "fullDescription": {
+                "text": "ECDSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Signatures could be forged after Q-day; long-lived signing keys need to rotate well before then. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+.",
+                "markdown": "**Fix:** Replace with ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "PY-RSA-KEYGEN",
+              "name": "PyRsaKeygen",
+              "shortDescription": {
+                "text": "RSA key generation (pyca/cryptography)"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA).",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA)."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "PY-DES",
+              "name": "PyDes",
+              "shortDescription": {
+                "text": "DES / 3DES cipher"
+              },
+              "fullDescription": {
+                "text": "DES / 3DES is already insecure today, independent of quantum computing."
+              },
+              "help": {
+                "text": "Replace with AES-256-GCM.",
+                "markdown": "**Fix:** Replace with AES-256-GCM."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "JOSE-RSA-SIG",
+              "name": "JoseRsaSig",
+              "shortDescription": {
+                "text": "JWT/JOSE RSA signature algorithm"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Signatures could be forged after Q-day; long-lived signing keys need to rotate well before then. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA).",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA)."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "medium"
+              }
+            },
+            {
+              "id": "DEP-PYPI-PYCRYPTO",
+              "name": "DepPypiPycrypto",
+              "shortDescription": {
+                "text": "Cryptographic dependency: pycrypto"
+              },
+              "fullDescription": {
+                "text": "PyCrypto has been unmaintained since 2013 and has known CVEs. Replace it with pycryptodome or pyca/cryptography."
+              },
+              "help": {
+                "text": "PyCrypto has been unmaintained since 2013 and has known CVEs. Replace it with pycryptodome or pyca/cryptography.",
+                "markdown": "**Fix:** PyCrypto has been unmaintained since 2013 and has known CVEs. Replace it with pycryptodome or pyca/cryptography."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "dependency"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "RS-RSA",
+              "name": "RsRsa",
+              "shortDescription": {
+                "text": "RSA (RustCrypto rsa)"
+              },
+              "fullDescription": {
+                "text": "RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035."
+              },
+              "help": {
+                "text": "Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Rust options: RustCrypto ml-kem / ml-dsa crates; rustls with aws-lc-rs supports X25519MLKEM768.",
+                "markdown": "**Fix:** Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Rust options: RustCrypto ml-kem / ml-dsa crates; rustls with aws-lc-rs supports X25519MLKEM768."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "7.5",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "CS-MD5",
+              "name": "CsMd5",
+              "shortDescription": {
+                "text": "MD5 (.NET)"
+              },
+              "fullDescription": {
+                "text": "MD5 is already insecure today, independent of quantum computing."
+              },
+              "help": {
+                "text": "Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0).",
+                "markdown": "**Fix:** Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0)."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "DEP-GO-TOOLCHAIN-PRE-PQ",
+              "name": "DepGoToolchainPrePq",
+              "shortDescription": {
+                "text": "Go 1.22 predates default post-quantum TLS"
+              },
+              "fullDescription": {
+                "text": "Go 1.24 added crypto/mlkem and turned on hybrid X25519MLKEM768 key exchange in crypto/tls by default. Builds targeting older Go versions negotiate classical key exchange only."
+              },
+              "help": {
+                "text": "Raise the go directive to 1.24 or later and build with a current toolchain.",
+                "markdown": "**Fix:** Raise the go directive to 1.24 or later and build with a current toolchain."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "dependency"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "JVM-MD5",
+              "name": "JvmMd5",
+              "shortDescription": {
+                "text": "MD5 hash (JCA)"
+              },
+              "fullDescription": {
+                "text": "MD5 is already insecure today, independent of quantum computing."
+              },
+              "help": {
+                "text": "Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0).",
+                "markdown": "**Fix:** Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0)."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "JS-SHA1",
+              "name": "JsSha1",
+              "shortDescription": {
+                "text": "SHA-1 hash"
+              },
+              "fullDescription": {
+                "text": "SHA-1 is already insecure today, independent of quantum computing."
+              },
+              "help": {
+                "text": "Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0).",
+                "markdown": "**Fix:** Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0)."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "PY-MD5",
+              "name": "PyMd5",
+              "shortDescription": {
+                "text": "MD5 hash"
+              },
+              "fullDescription": {
+                "text": "MD5 is already insecure today, independent of quantum computing."
+              },
+              "help": {
+                "text": "Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0).",
+                "markdown": "**Fix:** Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0)."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "5.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "DEP-NPM-NODE-FORGE",
+              "name": "DepNpmNodeForge",
+              "shortDescription": {
+                "text": "Cryptographic dependency: node-forge"
+              },
+              "fullDescription": {
+                "text": "Provides classical public-key crypto (RSA/ECC). Review how it is used and plan the post-quantum path."
+              },
+              "help": {
+                "text": "Track this library's post-quantum roadmap; the source findings show where it is called.",
+                "markdown": "**Fix:** Track this library's post-quantum roadmap; the source findings show where it is called."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "dependency"
+                ],
+                "security-severity": "2.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "GEN-HYBRID-KEM",
+              "name": "GenHybridKem",
+              "shortDescription": {
+                "text": "Hybrid post-quantum key exchange"
+              },
+              "fullDescription": {
+                "text": "Hybrid PQ key exchange (X25519MLKEM768 etc.) is a post-quantum-safe choice."
+              },
+              "help": {
+                "text": "No action needed. Keep the implementation up to date and FIPS-validated where required.",
+                "markdown": "**Fix:** No action needed. Keep the implementation up to date and FIPS-validated where required."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "0.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "DEP-GO-GOLANG-ORG-X-CRYPTO",
+              "name": "DepGoGolangOrgXCrypto",
+              "shortDescription": {
+                "text": "Cryptographic dependency: golang.org/x/crypto"
+              },
+              "fullDescription": {
+                "text": "Provides classical public-key crypto (RSA/ECC). Review how it is used and plan the post-quantum path."
+              },
+              "help": {
+                "text": "Track this library's post-quantum roadmap; the source findings show where it is called.",
+                "markdown": "**Fix:** Track this library's post-quantum roadmap; the source findings show where it is called."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "dependency"
+                ],
+                "security-severity": "0.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "DEP-GO-GITHUB-COM-CLOUDFLARE-CIRCL",
+              "name": "DepGoGithubComCloudflareCircl",
+              "shortDescription": {
+                "text": "Cryptographic dependency: github.com/cloudflare/circl"
+              },
+              "fullDescription": {
+                "text": "Cloudflare CIRCL: includes ML-KEM, ML-DSA and hybrids alongside classical algorithms."
+              },
+              "help": {
+                "text": "Track this library's post-quantum roadmap; the source findings show where it is called.",
+                "markdown": "**Fix:** Track this library's post-quantum roadmap; the source findings show where it is called."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "dependency"
+                ],
+                "security-severity": "0.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "GO-MLKEM",
+              "name": "GoMlkem",
+              "shortDescription": {
+                "text": "ML-KEM / hybrid PQ key exchange"
+              },
+              "fullDescription": {
+                "text": "ML-KEM (FIPS 203) is a post-quantum-safe choice."
+              },
+              "help": {
+                "text": "No action needed. Keep the implementation up to date and FIPS-validated where required.",
+                "markdown": "**Fix:** No action needed. Keep the implementation up to date and FIPS-validated where required."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "0.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "GEN-ML-KEM",
+              "name": "GenMlKem",
+              "shortDescription": {
+                "text": "ML-KEM reference"
+              },
+              "fullDescription": {
+                "text": "ML-KEM (FIPS 203) is a post-quantum-safe choice."
+              },
+              "help": {
+                "text": "No action needed. Keep the implementation up to date and FIPS-validated where required.",
+                "markdown": "**Fix:** No action needed. Keep the implementation up to date and FIPS-validated where required."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "0.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "DEP-NPM-NOBLE-POST-QUANTUM",
+              "name": "DepNpmNoblePostQuantum",
+              "shortDescription": {
+                "text": "Cryptographic dependency: @noble/post-quantum"
+              },
+              "fullDescription": {
+                "text": "Provides post-quantum algorithms."
+              },
+              "help": {
+                "text": "Track this library's post-quantum roadmap; the source findings show where it is called.",
+                "markdown": "**Fix:** Track this library's post-quantum roadmap; the source findings show where it is called."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "dependency"
+                ],
+                "security-severity": "0.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "DEP-PYPI-CRYPTOGRAPHY",
+              "name": "DepPypiCryptography",
+              "shortDescription": {
+                "text": "Cryptographic dependency: cryptography"
+              },
+              "fullDescription": {
+                "text": "Provides classical public-key crypto (RSA/ECC). Review how it is used and plan the post-quantum path."
+              },
+              "help": {
+                "text": "Track this library's post-quantum roadmap; the source findings show where it is called.",
+                "markdown": "**Fix:** Track this library's post-quantum roadmap; the source findings show where it is called."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "dependency"
+                ],
+                "security-severity": "0.0",
+                "precision": "high"
+              }
+            },
+            {
+              "id": "RS-PQC",
+              "name": "RsPqc",
+              "shortDescription": {
+                "text": "Rust post-quantum crate"
+              },
+              "fullDescription": {
+                "text": "Post-quantum algorithm (unspecified) is a post-quantum-safe choice."
+              },
+              "help": {
+                "text": "No action needed. Keep the implementation up to date and FIPS-validated where required.",
+                "markdown": "**Fix:** No action needed. Keep the implementation up to date and FIPS-validated where required."
+              },
+              "properties": {
+                "tags": [
+                  "security",
+                  "cryptography",
+                  "post-quantum",
+                  "source"
+                ],
+                "security-severity": "0.0",
+                "precision": "high"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "C-TLS-GROUPS",
+          "level": "error",
+          "message": {
+            "text": "TLS group list set without a post-quantum hybrid group. TLS group list set without a post-quantum hybrid group. ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. OpenSSL 3.5+ supports ML-KEM, ML-DSA and SLH-DSA and offers X25519MLKEM768 in TLS by default; liboqs for other algorithms."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "e304afcbcf9af1cf5be93edd"
+          },
+          "properties": {
+            "algorithm": "ecdh",
+            "usage": "key-exchange",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "c/tls.c"
+                },
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CFG-TLS-NO13",
+          "level": "error",
+          "message": {
+            "text": "TLS 1.3 not enabled (post-quantum key exchange requires TLS 1.3). TLS 1.3 not enabled (post-quantum key exchange requires TLS 1.3). SSL 3.0 / TLS 1.0 / TLS 1.1 is already insecure today, independent of quantum computing. Fix: Replace with TLS 1.3 (required for hybrid post-quantum key exchange)."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "8e020988d9dac8d5abcb63ce"
+          },
+          "properties": {
+            "algorithm": "tls-legacy",
+            "usage": "protocol",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "config/nginx.conf"
+                },
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CFG-NGINX-CURVES",
+          "level": "error",
+          "message": {
+            "text": "nginx ssl_ecdh_curve excludes post-quantum hybrid groups. nginx ssl_ecdh_curve excludes post-quantum hybrid groups. ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "83618e62e78c2640b7a64c52"
+          },
+          "properties": {
+            "algorithm": "ecdh",
+            "usage": "key-exchange",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "config/nginx.conf"
+                },
+                "region": {
+                  "startLine": 4,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CFG-SSH-KEX",
+          "level": "error",
+          "message": {
+            "text": "SSH KexAlgorithms set without a post-quantum hybrid. SSH KexAlgorithms set without a post-quantum hybrid. ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "1798795315f975f338a6123e"
+          },
+          "properties": {
+            "algorithm": "ecdh",
+            "usage": "key-exchange",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "config/sshd_config"
+                },
+                "region": {
+                  "startLine": 4,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS-RSA-ENC",
+          "level": "error",
+          "message": {
+            "text": "RSA encryption (.NET). RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Anything encrypted this way can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. .NET 10 adds MLKem, MLDsa and SlhDsa; Bouncy Castle .NET for earlier runtimes."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "7f2682ca9fea9f181edfa5b6"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "encryption",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cs/Keys.cs"
+                },
+                "region": {
+                  "startLine": 6,
+                  "startColumn": 36
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS-ECDH",
+          "level": "error",
+          "message": {
+            "text": "ECDH (.NET). ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. .NET 10 adds MLKem, MLDsa and SlhDsa; Bouncy Castle .NET for earlier runtimes."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "86402038cf1e131d8ed33329"
+          },
+          "properties": {
+            "algorithm": "ecdh",
+            "usage": "key-exchange",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cs/Keys.cs"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 24
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GO-RSA-ENC",
+          "level": "error",
+          "message": {
+            "text": "RSA encryption. RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Anything encrypted this way can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "9283c755239aedc3c45dfd9b"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "encryption",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "go/server.go"
+                },
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 11
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GO-TLS-CURVES",
+          "level": "error",
+          "message": {
+            "text": "TLS CurvePreferences pins classical groups only, disabling Go's default hybrid PQ key exchange. TLS CurvePreferences pins classical groups only, disabling Go's default hybrid PQ key exchange. ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "5e9a0be4df8da18dcce410ff"
+          },
+          "properties": {
+            "algorithm": "ecdh",
+            "usage": "key-exchange",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "go/server.go"
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 21
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JVM-RSA-CIPHER",
+          "level": "error",
+          "message": {
+            "text": "RSA encryption (JCA Cipher). RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Anything encrypted this way can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "cc40a444863c1e4dcc53f20c"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "encryption",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "java/Crypto.java"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 22
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JVM-ECDH",
+          "level": "error",
+          "message": {
+            "text": "ECDH key agreement (JCA). ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "977463285e3e774af8b7f8b1"
+          },
+          "properties": {
+            "algorithm": "ecdh",
+            "usage": "key-exchange",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "java/Crypto.java"
+                },
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 27
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JS-ECDH",
+          "level": "error",
+          "message": {
+            "text": "ECDH (node:crypto). ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "9914b7995de42f02de1a9aad"
+          },
+          "properties": {
+            "algorithm": "ecdh",
+            "usage": "key-exchange",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "js/auth.ts"
+                },
+                "region": {
+                  "startLine": 4,
+                  "startColumn": 14
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JS-RSA-ENC",
+          "level": "error",
+          "message": {
+            "text": "RSA encryption (node:crypto). RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Anything encrypted this way can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "f33a3516a7a89cc3974e96f6"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "encryption",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "js/auth.ts"
+                },
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 16
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "PY-ECDH",
+          "level": "error",
+          "message": {
+            "text": "ECDH key agreement. ECDH is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition. Prioritise this: the exposure starts the day data is recorded. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA)."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "a8b033abb59791ecb9ca6f88"
+          },
+          "properties": {
+            "algorithm": "ecdh",
+            "usage": "key-exchange",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "py/crypto_utils.py"
+                },
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 63
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "PY-RSA-OAEP",
+          "level": "error",
+          "message": {
+            "text": "RSA-OAEP encryption. RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Anything encrypted this way can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Prioritise this: the exposure starts the day data is recorded. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA)."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "0b60c4658a01a5c429333511"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "encryption",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "py/crypto_utils.py"
+                },
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 37
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "RS-X25519",
+          "level": "error",
+          "message": {
+            "text": "X25519 key agreement. X25519/X448 key agreement is broken by Shor's algorithm on a cryptographically relevant quantum computer. Data protected by this key exchange can be recorded now and decrypted later (harvest-now-decrypt-later). NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Migrate to Hybrid X25519MLKEM768 (keeps X25519, adds ML-KEM-768). Prioritise this: the exposure starts the day data is recorded. Rust options: RustCrypto ml-kem / ml-dsa crates; rustls with aws-lc-rs supports X25519MLKEM768."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "d1feb77a5062ff5d447b5318"
+          },
+          "properties": {
+            "algorithm": "x25519",
+            "usage": "key-exchange",
+            "severity": "critical"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rust/main.rs"
+                },
+                "region": {
+                  "startLine": 2,
+                  "startColumn": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "C-RSA-KEYGEN",
+          "level": "error",
+          "message": {
+            "text": "RSA key. RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. OpenSSL 3.5+ supports ML-KEM, ML-DSA and SLH-DSA and offers X25519MLKEM768 in TLS by default; liboqs for other algorithms."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "af9cdb95a95fb32d1374778a"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "key-generation",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "c/tls.c"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "C-OSSL3-NAMED-EC",
+          "level": "error",
+          "message": {
+            "text": "EC key (OpenSSL 3 by-name API). X25519/X448 key agreement is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with Hybrid X25519MLKEM768 (keeps X25519, adds ML-KEM-768). OpenSSL 3.5+ supports ML-KEM, ML-DSA and SLH-DSA and offers X25519MLKEM768 in TLS by default; liboqs for other algorithms."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "fdc88f5b073f94865f8e8533"
+          },
+          "properties": {
+            "algorithm": "x25519",
+            "usage": "key-generation",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "c/tls.c"
+                },
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 26
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CFG-TLS-LEGACY",
+          "level": "error",
+          "message": {
+            "text": "Legacy SSL/TLS protocol version enabled. Legacy SSL/TLS protocol version enabled. SSL 3.0 / TLS 1.0 / TLS 1.1 is already insecure today, independent of quantum computing. Fix: Replace with TLS 1.3 (required for hybrid post-quantum key exchange)."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "a3526f60b186e3a84f45ea7d"
+          },
+          "properties": {
+            "algorithm": "tls-legacy",
+            "usage": "protocol",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "config/nginx.conf"
+                },
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CFG-SSH-RSA-HOSTKEY",
+          "level": "error",
+          "message": {
+            "text": "SSH host key uses RSA/ECDSA. RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Signatures could be forged after Q-day; long-lived signing keys need to rotate well before then. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "f1712c3057e4b862cf65ee65"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "signature",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "config/sshd_config"
+                },
+                "region": {
+                  "startLine": 2,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS-RSA",
+          "level": "error",
+          "message": {
+            "text": "RSA (.NET). RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. .NET 10 adds MLKem, MLDsa and SlhDsa; Bouncy Castle .NET for earlier runtimes."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "314cc2855979a15baa791121"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "key-generation",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cs/Keys.cs"
+                },
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 25
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GO-RSA-KEYGEN",
+          "level": "error",
+          "message": {
+            "text": "RSA key generation. RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "6ef7ad2e7c74dfc609c2142c"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "key-generation",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "go/server.go"
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GO-ECDSA",
+          "level": "error",
+          "message": {
+            "text": "ECDSA. ECDSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Signatures could be forged after Q-day; long-lived signing keys need to rotate well before then. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys. Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "2acc3df9e3e06e889201eaf8"
+          },
+          "properties": {
+            "algorithm": "ecdsa",
+            "usage": "signature",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "go/server.go"
+                },
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 10
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "IAC-TLS-PRIVATE-KEY",
+          "level": "error",
+          "message": {
+            "text": "Terraform tls_private_key with classical algorithm. RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "2dca12b2be1ecf882aead84c"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "key-generation",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "infra/main.tf"
+                },
+                "region": {
+                  "startLine": 2,
+                  "startColumn": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "IAC-KMS-ECC",
+          "level": "error",
+          "message": {
+            "text": "Cloud KMS / ACM elliptic-curve key. Elliptic-curve cryptography is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for key agreement; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "41265c59f435b246981ab0e8"
+          },
+          "properties": {
+            "algorithm": "ecc",
+            "usage": "key-generation",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "infra/main.tf"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JVM-RSA-KEYGEN",
+          "level": "error",
+          "message": {
+            "text": "RSA key pair generation (JCA). RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "1e1fb24e92a5819efa2cf7f7"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "key-generation",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "java/Crypto.java"
+                },
+                "region": {
+                  "startLine": 6,
+                  "startColumn": 32
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JVM-ECDSA-SIG",
+          "level": "error",
+          "message": {
+            "text": "ECDSA signature (JCA). ECDSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Signatures could be forged after Q-day; long-lived signing keys need to rotate well before then. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys. Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "c4bca5c60b18293e701473d8"
+          },
+          "properties": {
+            "algorithm": "ecdsa",
+            "usage": "signature",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "java/Crypto.java"
+                },
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 25
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JS-RSA-KEYGEN",
+          "level": "error",
+          "message": {
+            "text": "RSA key generation (node:crypto). RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "97e39b6cb9cab229eb0b1dcd"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "key-generation",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "js/auth.ts"
+                },
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 23
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JS-WEBCRYPTO-ECDSA",
+          "level": "error",
+          "message": {
+            "text": "ECDSA (WebCrypto). ECDSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Signatures could be forged after Q-day; long-lived signing keys need to rotate well before then. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys. JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "04b82f53f79bfe1670971622"
+          },
+          "properties": {
+            "algorithm": "ecdsa",
+            "usage": "signature",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "js/auth.ts"
+                },
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 49
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "PY-RSA-KEYGEN",
+          "level": "error",
+          "message": {
+            "text": "RSA key generation (pyca/cryptography). RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA)."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "ef2ab047f20cafa9b74e5ed9"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "key-generation",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "py/crypto_utils.py"
+                },
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 19
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "PY-DES",
+          "level": "error",
+          "message": {
+            "text": "DES / 3DES cipher. DES / 3DES is already insecure today, independent of quantum computing. Fix: Replace with AES-256-GCM."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "5b9c60b1731ee61a48f88001"
+          },
+          "properties": {
+            "algorithm": "des",
+            "usage": "symmetric",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "py/crypto_utils.py"
+                },
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 14
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JOSE-RSA-SIG",
+          "level": "error",
+          "message": {
+            "text": "JWT/JOSE RSA signature algorithm. RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. Signatures could be forged after Q-day; long-lived signing keys need to rotate well before then. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA)."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "6bae075253e98b7810e2c31b"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "signature",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "py/crypto_utils.py"
+                },
+                "region": {
+                  "startLine": 25,
+                  "startColumn": 11
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DEP-PYPI-PYCRYPTO",
+          "level": "error",
+          "message": {
+            "text": "Cryptographic dependency: pycrypto. PyCrypto has been unmaintained since 2013 and has known CVEs. Replace it with pycryptodome or pyca/cryptography. Fix: PyCrypto has been unmaintained since 2013 and has known CVEs. Replace it with pycryptodome or pyca/cryptography."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "ca19feb663278d93519ec2fd"
+          },
+          "properties": {
+            "algorithm": "pycrypto",
+            "usage": "library",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "RS-RSA",
+          "level": "error",
+          "message": {
+            "text": "RSA (RustCrypto rsa). RSA is broken by Shor's algorithm on a cryptographically relevant quantum computer. NIST IR 8547 (draft) deprecates it after 2030 and disallows it after 2035. Fix: Replace with ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures. Rust options: RustCrypto ml-kem / ml-dsa crates; rustls with aws-lc-rs supports X25519MLKEM768."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "e302ff104d19792b6b02739e"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "key-generation",
+            "severity": "high"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rust/main.rs"
+                },
+                "region": {
+                  "startLine": 6,
+                  "startColumn": 15
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CS-MD5",
+          "level": "warning",
+          "message": {
+            "text": "MD5 (.NET). MD5 is already insecure today, independent of quantum computing. Fix: Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0)."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "a39ba2f3b622be4fee5048a2"
+          },
+          "properties": {
+            "algorithm": "md5",
+            "usage": "hash",
+            "severity": "medium"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "cs/Keys.cs"
+                },
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 25
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DEP-GO-TOOLCHAIN-PRE-PQ",
+          "level": "warning",
+          "message": {
+            "text": "Go 1.22 predates default post-quantum TLS. Go 1.24 added crypto/mlkem and turned on hybrid X25519MLKEM768 key exchange in crypto/tls by default. Builds targeting older Go versions negotiate classical key exchange only. Fix: Raise the go directive to 1.24 or later and build with a current toolchain."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "487a8d67822b6c462edc87fe"
+          },
+          "properties": {
+            "algorithm": "ecdh",
+            "usage": "protocol",
+            "severity": "medium"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "go/go.mod"
+                },
+                "region": {
+                  "startLine": 3
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JVM-MD5",
+          "level": "warning",
+          "message": {
+            "text": "MD5 hash (JCA). MD5 is already insecure today, independent of quantum computing. Fix: Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0)."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "9c51251fc6682a4d02569547"
+          },
+          "properties": {
+            "algorithm": "md5",
+            "usage": "hash",
+            "severity": "medium"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "java/Crypto.java"
+                },
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 28
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "JS-SHA1",
+          "level": "warning",
+          "message": {
+            "text": "SHA-1 hash. SHA-1 is already insecure today, independent of quantum computing. Fix: Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0)."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "9c54ca7351c93148a44021eb"
+          },
+          "properties": {
+            "algorithm": "sha1",
+            "usage": "hash",
+            "severity": "medium"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "js/auth.ts"
+                },
+                "region": {
+                  "startLine": 6,
+                  "startColumn": 14
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "PY-MD5",
+          "level": "warning",
+          "message": {
+            "text": "MD5 hash. MD5 is already insecure today, independent of quantum computing. Fix: Replace with SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0)."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "ab29ca2e21598f4c5668cdf4"
+          },
+          "properties": {
+            "algorithm": "md5",
+            "usage": "hash",
+            "severity": "medium"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "py/crypto_utils.py"
+                },
+                "region": {
+                  "startLine": 20,
+                  "startColumn": 16
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DEP-NPM-NODE-FORGE",
+          "level": "note",
+          "message": {
+            "text": "Cryptographic dependency: node-forge. Provides classical public-key crypto (RSA/ECC). Review how it is used and plan the post-quantum path. Fix: Track this library's post-quantum roadmap; the source findings show where it is called."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "912aee152fd71ecd06db06f6"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "library",
+            "severity": "low"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GEN-HYBRID-KEM",
+          "level": "note",
+          "message": {
+            "text": "Hybrid post-quantum key exchange. Hybrid PQ key exchange (X25519MLKEM768 etc.) is a post-quantum-safe choice. Fix: No action needed. Keep the implementation up to date and FIPS-validated where required."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "7657e0a233b494a3725043fd"
+          },
+          "properties": {
+            "algorithm": "hybrid-kem",
+            "usage": "key-exchange",
+            "severity": "info"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "c/tls.c"
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 36
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DEP-GO-GOLANG-ORG-X-CRYPTO",
+          "level": "note",
+          "message": {
+            "text": "Cryptographic dependency: golang.org/x/crypto. Provides classical public-key crypto (RSA/ECC). Review how it is used and plan the post-quantum path. Fix: Track this library's post-quantum roadmap; the source findings show where it is called."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "0d919abac665005eb5d82b8a"
+          },
+          "properties": {
+            "algorithm": "ecc",
+            "usage": "library",
+            "severity": "info"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "go/go.mod"
+                },
+                "region": {
+                  "startLine": 6
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DEP-GO-GITHUB-COM-CLOUDFLARE-CIRCL",
+          "level": "note",
+          "message": {
+            "text": "Cryptographic dependency: github.com/cloudflare/circl. Cloudflare CIRCL: includes ML-KEM, ML-DSA and hybrids alongside classical algorithms. Fix: Track this library's post-quantum roadmap; the source findings show where it is called."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "38ac67db192d9e741719945e"
+          },
+          "properties": {
+            "algorithm": "pqc",
+            "usage": "library",
+            "severity": "info"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "go/go.mod"
+                },
+                "region": {
+                  "startLine": 7
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GO-MLKEM",
+          "level": "note",
+          "message": {
+            "text": "ML-KEM / hybrid PQ key exchange. ML-KEM (FIPS 203) is a post-quantum-safe choice. Fix: No action needed. Keep the implementation up to date and FIPS-validated where required."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "6c412317576e8debe8879317"
+          },
+          "properties": {
+            "algorithm": "ml-kem",
+            "usage": "key-exchange",
+            "severity": "info"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "go/server.go"
+                },
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 54
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GEN-HYBRID-KEM",
+          "level": "note",
+          "message": {
+            "text": "Hybrid post-quantum key exchange. Hybrid PQ key exchange (X25519MLKEM768 etc.) is a post-quantum-safe choice. Fix: No action needed. Keep the implementation up to date and FIPS-validated where required."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "c2747dca7545fa672eb4d099"
+          },
+          "properties": {
+            "algorithm": "hybrid-kem",
+            "usage": "key-exchange",
+            "severity": "info"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "go/server.go"
+                },
+                "region": {
+                  "startLine": 16,
+                  "startColumn": 58
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GEN-ML-KEM",
+          "level": "note",
+          "message": {
+            "text": "ML-KEM reference. ML-KEM (FIPS 203) is a post-quantum-safe choice. Fix: No action needed. Keep the implementation up to date and FIPS-validated where required."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "3512ca95b70fff4c31ca5235"
+          },
+          "properties": {
+            "algorithm": "ml-kem",
+            "usage": "key-exchange",
+            "severity": "info"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "java/Crypto.java"
+                },
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 61
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DEP-NPM-NOBLE-POST-QUANTUM",
+          "level": "note",
+          "message": {
+            "text": "Cryptographic dependency: @noble/post-quantum. Provides post-quantum algorithms. Fix: Track this library's post-quantum roadmap; the source findings show where it is called."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "a40e35b933a199a0cf0ae22d"
+          },
+          "properties": {
+            "algorithm": "pqc",
+            "usage": "library",
+            "severity": "info"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package.json"
+                },
+                "region": {
+                  "startLine": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "DEP-PYPI-CRYPTOGRAPHY",
+          "level": "note",
+          "message": {
+            "text": "Cryptographic dependency: cryptography. Provides classical public-key crypto (RSA/ECC). Review how it is used and plan the post-quantum path. Fix: Track this library's post-quantum roadmap; the source findings show where it is called."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "50c19c86f62ad75889581109"
+          },
+          "properties": {
+            "algorithm": "rsa",
+            "usage": "library",
+            "severity": "info"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "requirements.txt"
+                },
+                "region": {
+                  "startLine": 2
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "RS-PQC",
+          "level": "note",
+          "message": {
+            "text": "Rust post-quantum crate. Post-quantum algorithm (unspecified) is a post-quantum-safe choice. Fix: No action needed. Keep the implementation up to date and FIPS-validated where required."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "c641da77b1e2e183b31b7333"
+          },
+          "properties": {
+            "algorithm": "pqc",
+            "usage": "unknown",
+            "severity": "info"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rust/main.rs"
+                },
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "GEN-ML-KEM",
+          "level": "note",
+          "message": {
+            "text": "ML-KEM reference. ML-KEM (FIPS 203) is a post-quantum-safe choice. Fix: No action needed. Keep the implementation up to date and FIPS-validated where required."
+          },
+          "partialFingerprints": {
+            "postshor/v1": "fc62d7681c154d38e1b5e4e2"
+          },
+          "properties": {
+            "algorithm": "ml-kem",
+            "usage": "key-exchange",
+            "severity": "info"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "rust/main.rs"
+                },
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 13
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "quantumReadinessScore": {
+          "qrs_version": "1.0",
+          "score": 0,
+          "grade": "F",
+          "counts": {
+            "critical": 15,
+            "high": 18,
+            "medium": 5,
+            "low": 1,
+            "info": 10
+          },
+          "badge": "https://img.shields.io/badge/quantum--readiness-F%20(0)-red"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use PostShor or the Quantum Readiness Score in research, please cite it as below."
+title: "PostShor: quantum-readiness scanner and the Quantum Readiness Score (QRS)"
+type: software
+authors:
+  - name: "PostShor contributors"
+version: 0.1.0
+date-released: 2026-10-15
+license: Apache-2.0
+repository-code: "https://github.com/postshor/postshor"
+keywords:
+  - post-quantum cryptography
+  - cryptographic inventory
+  - CBOM
+  - ML-KEM
+  - ML-DSA
+  - quantum readiness

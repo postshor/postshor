@@ -1,0 +1,797 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:1dcf908b-8d21-4f35-9b88-f454dbb8b2f1",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-14T21:19:31+00:00",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "postshor",
+          "version": "0.1.0"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "bom-ref": "target",
+      "name": "tests/fixtures/vulnerable_app"
+    },
+    "properties": [
+      {
+        "name": "postshor:qrsVersion",
+        "value": "1.0"
+      },
+      {
+        "name": "postshor:quantumReadinessScore",
+        "value": "0"
+      },
+      {
+        "name": "postshor:grade",
+        "value": "F"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "crypto/library/pypi/pycrypto",
+      "name": "pycrypto",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "requirements.txt",
+            "line": 1,
+            "additionalContext": "DEP-PYPI-PYCRYPTO: pycrypto"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:severity",
+          "value": "high"
+        },
+        {
+          "name": "postshor:note",
+          "value": "PyCrypto has been unmaintained since 2013 and has known CVEs. Replace it with pycryptodome or pyca/cryptography."
+        }
+      ],
+      "purl": "pkg:pypi/pycrypto"
+    },
+    {
+      "type": "library",
+      "bom-ref": "crypto/library/npm/node-forge",
+      "name": "node-forge",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "package.json",
+            "line": 1,
+            "additionalContext": "DEP-NPM-NODE-FORGE: node-forge"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:severity",
+          "value": "low"
+        },
+        {
+          "name": "postshor:note",
+          "value": "Provides classical public-key crypto (RSA/ECC). Review how it is used and plan the post-quantum path."
+        }
+      ],
+      "purl": "pkg:npm/node-forge"
+    },
+    {
+      "type": "library",
+      "bom-ref": "crypto/library/go/golang.org-x-crypto",
+      "name": "golang.org/x/crypto",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "go/go.mod",
+            "line": 6,
+            "additionalContext": "DEP-GO-GOLANG-ORG-X-CRYPTO: golang.org/x/crypto"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:severity",
+          "value": "info"
+        },
+        {
+          "name": "postshor:note",
+          "value": "Provides classical public-key crypto (RSA/ECC). Review how it is used and plan the post-quantum path."
+        }
+      ],
+      "purl": "pkg:golang/golang.org/x/crypto"
+    },
+    {
+      "type": "library",
+      "bom-ref": "crypto/library/go/github.com-cloudflare-circl",
+      "name": "github.com/cloudflare/circl",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "go/go.mod",
+            "line": 7,
+            "additionalContext": "DEP-GO-GITHUB-COM-CLOUDFLARE-CIRCL: github.com/cloudflare/circl"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:severity",
+          "value": "info"
+        },
+        {
+          "name": "postshor:note",
+          "value": "Cloudflare CIRCL: includes ML-KEM, ML-DSA and hybrids alongside classical algorithms."
+        }
+      ],
+      "purl": "pkg:golang/github.com/cloudflare/circl"
+    },
+    {
+      "type": "library",
+      "bom-ref": "crypto/library/npm/noble-post-quantum",
+      "name": "@noble/post-quantum",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "package.json",
+            "line": 1,
+            "additionalContext": "DEP-NPM-NOBLE-POST-QUANTUM: @noble/post-quantum"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:severity",
+          "value": "info"
+        },
+        {
+          "name": "postshor:note",
+          "value": "Provides post-quantum algorithms."
+        }
+      ],
+      "purl": "pkg:npm/@noble/post-quantum"
+    },
+    {
+      "type": "library",
+      "bom-ref": "crypto/library/pypi/cryptography",
+      "name": "cryptography",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "requirements.txt",
+            "line": 2,
+            "additionalContext": "DEP-PYPI-CRYPTOGRAPHY: cryptography"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:severity",
+          "value": "info"
+        },
+        {
+          "name": "postshor:note",
+          "value": "Provides classical public-key crypto (RSA/ECC). Review how it is used and plan the post-quantum path."
+        }
+      ],
+      "purl": "pkg:pypi/cryptography"
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/ecdh",
+      "name": "ECDH",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "key-agree",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "keyderive",
+            "unknown"
+          ],
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "1.3.132.1.12"
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "c/tls.c",
+            "line": 5,
+            "additionalContext": "C-TLS-GROUPS: SSL_CTX_set1_groups_list(ctx, \"X25519:P-256\");"
+          },
+          {
+            "location": "config/nginx.conf",
+            "line": 4,
+            "additionalContext": "CFG-NGINX-CURVES: ssl_ecdh_curve X25519:prime256v1;"
+          },
+          {
+            "location": "config/sshd_config",
+            "line": 4,
+            "additionalContext": "CFG-SSH-KEX: KexAlgorithms curve25519-sha256,ecdh-sha2-nistp256"
+          },
+          {
+            "location": "cs/Keys.cs",
+            "line": 7,
+            "additionalContext": "CS-ECDH: using var ec = ECDiffieHellman.Create();"
+          },
+          {
+            "location": "go/server.go",
+            "line": 15,
+            "additionalContext": "GO-TLS-CURVES: cfg := &tls.Config{CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256}}"
+          },
+          {
+            "location": "java/Crypto.java",
+            "line": 9,
+            "additionalContext": "JVM-ECDH: KeyAgreement ka = KeyAgreement.getInstance(\"ECDH\");"
+          },
+          {
+            "location": "js/auth.ts",
+            "line": 4,
+            "additionalContext": "JS-ECDH: const ecdh = createECDH(\"prime256v1\");"
+          },
+          {
+            "location": "py/crypto_utils.py",
+            "line": 9,
+            "additionalContext": "PY-ECDH: shared = ec.generate_private_key(ec.SECP256R1()).exchange(ec.ECDH(), peer_public_key)"
+          },
+          {
+            "location": "go/go.mod",
+            "line": 3,
+            "additionalContext": "DEP-GO-TOOLCHAIN-PRE-PQ: go 1.22"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "quantum-broken"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "critical"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/rsa",
+      "name": "RSA",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "decrypt",
+            "encrypt",
+            "keygen",
+            "sign",
+            "verify"
+          ],
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cs/Keys.cs",
+            "line": 6,
+            "additionalContext": "CS-RSA-ENC: var ct = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA256);"
+          },
+          {
+            "location": "go/server.go",
+            "line": 13,
+            "additionalContext": "GO-RSA-ENC: ct, _ := rsa.EncryptOAEP(nil, rand.Reader, &k.PublicKey, []byte(\"x\"), nil)"
+          },
+          {
+            "location": "java/Crypto.java",
+            "line": 7,
+            "additionalContext": "JVM-RSA-CIPHER: Cipher rsa = Cipher.getInstance(\"RSA/ECB/OAEPWithSHA-256AndMGF1Padding\");"
+          },
+          {
+            "location": "js/auth.ts",
+            "line": 5,
+            "additionalContext": "JS-RSA-ENC: const sealed = publicEncrypt(publicKey, Buffer.from(\"secret\"));"
+          },
+          {
+            "location": "py/crypto_utils.py",
+            "line": 14,
+            "additionalContext": "PY-RSA-OAEP: return public_key.encrypt(data, padding.OAEP(mgf=padding.MGF1(hashes.SHA256()), algorithm=hashes.SHA256(), label=None))"
+          },
+          {
+            "location": "c/tls.c",
+            "line": 7,
+            "additionalContext": "C-RSA-KEYGEN: RSA_generate_key_ex(r, 2048, NULL, NULL);"
+          },
+          {
+            "location": "config/sshd_config",
+            "line": 2,
+            "additionalContext": "CFG-SSH-RSA-HOSTKEY: HostKey /etc/ssh/ssh_host_rsa_key"
+          },
+          {
+            "location": "cs/Keys.cs",
+            "line": 5,
+            "additionalContext": "CS-RSA: using var rsa = RSA.Create(2048);"
+          },
+          {
+            "location": "go/server.go",
+            "line": 12,
+            "additionalContext": "GO-RSA-KEYGEN: k, _ := rsa.GenerateKey(rand.Reader, 2048)"
+          },
+          {
+            "location": "infra/main.tf",
+            "line": 2,
+            "additionalContext": "IAC-TLS-PRIVATE-KEY: algorithm = \"RSA\""
+          },
+          {
+            "location": "java/Crypto.java",
+            "line": 6,
+            "additionalContext": "JVM-RSA-KEYGEN: KeyPairGenerator kpg = KeyPairGenerator.getInstance(\"RSA\");"
+          },
+          {
+            "location": "js/auth.ts",
+            "line": 3,
+            "additionalContext": "JS-RSA-KEYGEN: const { publicKey } = generateKeyPairSync(\"rsa\", { modulusLength: 2048 });"
+          },
+          {
+            "location": "py/crypto_utils.py",
+            "line": 8,
+            "additionalContext": "PY-RSA-KEYGEN: private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)"
+          },
+          {
+            "location": "py/crypto_utils.py",
+            "line": 25,
+            "additionalContext": "JOSE-RSA-SIG: JWT_ALG = \"RS256\""
+          },
+          {
+            "location": "rust/main.rs",
+            "line": 6,
+            "additionalContext": "RS-RSA: let key = RsaPrivateKey::new(&mut rng, 2048).unwrap();"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "quantum-broken"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "critical"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for encryption/key transport; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/x25519",
+      "name": "X25519/X448 key agreement",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "key-agree",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "keyderive",
+            "keygen"
+          ],
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "1.3.101.110"
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "rust/main.rs",
+            "line": 2,
+            "additionalContext": "RS-X25519: use x25519_dalek::{EphemeralSecret, PublicKey};"
+          },
+          {
+            "location": "c/tls.c",
+            "line": 8,
+            "additionalContext": "C-OSSL3-NAMED-EC: EVP_PKEY_CTX *pctx = EVP_PKEY_CTX_new_from_name(NULL, \"X25519\", NULL);"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "quantum-broken"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "critical"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "Hybrid X25519MLKEM768 (keeps X25519, adds ML-KEM-768)"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/ecdsa",
+      "name": "ECDSA",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "sign",
+            "verify"
+          ],
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "1.2.840.10045.2.1"
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "go/server.go",
+            "line": 14,
+            "additionalContext": "GO-ECDSA: e, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)"
+          },
+          {
+            "location": "java/Crypto.java",
+            "line": 8,
+            "additionalContext": "JVM-ECDSA-SIG: Signature sig = Signature.getInstance(\"SHA256withECDSA\");"
+          },
+          {
+            "location": "js/auth.ts",
+            "line": 9,
+            "additionalContext": "JS-WEBCRYPTO-ECDSA: const key = await crypto.subtle.generateKey({ name: \"ECDSA\", namedCurve: \"P-256\" }, true, [\"sign\"]);"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "quantum-broken"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "high"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/ecc",
+      "name": "Elliptic-curve cryptography",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "other",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "keygen"
+          ],
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "1.2.840.10045.2.1"
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "infra/main.tf",
+            "line": 7,
+            "additionalContext": "IAC-KMS-ECC: customer_master_key_spec = \"ECC_NIST_P256\""
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "quantum-broken"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "high"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "ML-KEM-768 (FIPS 203), deployed as the hybrid X25519MLKEM768 during the transition for key agreement; ML-DSA-65 (FIPS 204); SLH-DSA (FIPS 205) or LMS/XMSS for long-lived firmware/root keys for signatures"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/des",
+      "name": "DES / 3DES",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "block-cipher",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "decrypt",
+            "encrypt"
+          ],
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "1.2.840.113549.3.7"
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "py/crypto_utils.py",
+            "line": 19,
+            "additionalContext": "PY-DES: cipher = DES3.new(key, DES3.MODE_CBC)"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "classically-broken"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "high"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "AES-256-GCM"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/md5",
+      "name": "MD5",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "digest"
+          ],
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "1.2.840.113549.2.5"
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cs/Keys.cs",
+            "line": 8,
+            "additionalContext": "CS-MD5: using var md5 = MD5.Create();"
+          },
+          {
+            "location": "java/Crypto.java",
+            "line": 10,
+            "additionalContext": "JVM-MD5: MessageDigest md = MessageDigest.getInstance(\"MD5\");"
+          },
+          {
+            "location": "py/crypto_utils.py",
+            "line": 20,
+            "additionalContext": "PY-MD5: checksum = hashlib.md5(data).hexdigest()"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "classically-broken"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "medium"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0)"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/sha1",
+      "name": "SHA-1",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "digest"
+          ],
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "1.3.14.3.2.26"
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "js/auth.ts",
+            "line": 6,
+            "additionalContext": "JS-SHA1: const etag = createHash(\"sha1\").update(\"x\").digest(\"hex\");"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "classically-broken"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "medium"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "SHA-256 or SHA-3 (SHA-384+ for CNSA 2.0)"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/hybrid-kem",
+      "name": "Hybrid PQ key exchange (X25519MLKEM768 etc.)",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "kem",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "keyderive"
+          ],
+          "nistQuantumSecurityLevel": 3
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "c/tls.c",
+            "line": 12,
+            "additionalContext": "GEN-HYBRID-KEM: SSL_CTX_set1_groups_list(ctx, \"X25519MLKEM768:X25519\");"
+          },
+          {
+            "location": "go/server.go",
+            "line": 16,
+            "additionalContext": "GEN-HYBRID-KEM: good := &tls.Config{CurvePreferences: []tls.CurveID{tls.X25519MLKEM768, tls.X25519}}"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "quantum-safe"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "info"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "Already quantum-safe"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/ml-kem",
+      "name": "ML-KEM (FIPS 203)",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "kem",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "keyderive"
+          ],
+          "nistQuantumSecurityLevel": 3
+        },
+        "oid": "2.16.840.1.101.3.4.4.2"
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "go/server.go",
+            "line": 16,
+            "additionalContext": "GO-MLKEM: good := &tls.Config{CurvePreferences: []tls.CurveID{tls.X25519MLKEM768, tls.X25519}}"
+          },
+          {
+            "location": "java/Crypto.java",
+            "line": 11,
+            "additionalContext": "GEN-ML-KEM: KeyPairGenerator pq = KeyPairGenerator.getInstance(\"ML-KEM-768\");"
+          },
+          {
+            "location": "rust/main.rs",
+            "line": 3,
+            "additionalContext": "GEN-ML-KEM: use ml_kem::MlKem768;"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "quantum-safe"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "info"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "Already quantum-safe"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/pqc",
+      "name": "Post-quantum algorithm (unspecified)",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "other",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "generic",
+          "cryptoFunctions": [
+            "unknown"
+          ],
+          "nistQuantumSecurityLevel": 1
+        }
+      },
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "rust/main.rs",
+            "line": 3,
+            "additionalContext": "RS-PQC: use ml_kem::MlKem768;"
+          }
+        ]
+      },
+      "properties": [
+        {
+          "name": "postshor:quantumStatus",
+          "value": "quantum-safe"
+        },
+        {
+          "name": "postshor:maxSeverity",
+          "value": "info"
+        },
+        {
+          "name": "postshor:replacement",
+          "value": "Verify it is a FIPS 203/204/205 algorithm"
+        }
+      ]
+    }
+  ]
+}
