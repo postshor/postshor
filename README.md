@@ -1,3 +1,17 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/postshor-lockup-on-dark.svg">
+    <img src="docs/assets/postshor-lockup-on-light.svg" alt="PostShor" width="320">
+  </picture>
+</p>
+
+<p align="center">
+  <a href="https://github.com/postshor/postshor/actions/workflows/ci.yml"><img src="https://github.com/postshor/postshor/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-0B0E14" alt="License: Apache-2.0"></a>
+  <img src="https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-0B0E14" alt="Python 3.11 | 3.12 | 3.13">
+  <a href="docs/spec/qrs-v1.md"><img src="https://img.shields.io/badge/QRS-v1%20draft-FFA630" alt="Quantum Readiness Score v1 draft"></a>
+</p>
+
 # PostShor
 
 **Find every piece of quantum-vulnerable cryptography in your software, and get the plan to fix it.**
@@ -5,7 +19,7 @@
 PostShor scans source code, dependencies, certificates, keys, server configuration, infrastructure-as-code and live TLS endpoints for cryptography that a quantum computer will break. It produces a prioritised migration plan, a standard CycloneDX cryptography bill of materials (CBOM), and an open, comparable [Quantum Readiness Score](docs/spec/qrs-v1.md).
 
 ```
-pip install postshor
+pip install git+https://github.com/postshor/postshor   # PyPI release coming soon
 postshor scan .
 ```
 
@@ -91,11 +105,11 @@ Findings appear in GitHub code scanning; the job summary shows the score and mig
 
 ```yaml
 - repo: https://github.com/postshor/postshor
-  rev: v0.1.0
+  rev: main   # pin to a release tag once v0.1.0 is published
   hooks: [{ id: postshor }]
 ```
 
-**Docker:** `docker run --rm -v "$PWD:/src" postshor/postshor scan .`
+**Docker:** `docker build -t postshor https://github.com/postshor/postshor.git && docker run --rm -v "$PWD:/src" postshor scan .`
 
 ### Adopting on an existing codebase
 
