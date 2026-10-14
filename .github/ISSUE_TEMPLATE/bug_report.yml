@@ -1,0 +1,29 @@
+name: Bug report
+description: PostShor crashed, produced a wrong report, or behaved unexpectedly.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Include the command you ran and the output.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: PostShor version
+      description: Output of `postshor --version`.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS and Python version
+      placeholder: Ubuntu 24.04, Python 3.12

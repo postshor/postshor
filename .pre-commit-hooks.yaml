@@ -1,0 +1,7 @@
+- id: postshor
+  name: PostShor (quantum-vulnerable cryptography)
+  description: Blocks commits that add critical quantum-vulnerable cryptography or private keys.
+  entry: postshor scan --fail-on critical
+  language: python
+  pass_filenames: false
+  always_run: true

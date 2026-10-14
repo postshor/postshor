@@ -1,0 +1,32 @@
+name: Wrong or missing detection
+description: A false positive (flagged but shouldn't be) or a false negative (missed cryptography).
+labels: [detection]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type
+      options:
+        - False positive (flagged incorrectly)
+        - False negative (missed)
+        - Wrong severity or remediation
+    validations:
+      required: true
+  - type: input
+    id: rule
+    attributes:
+      label: Rule ID
+      description: For false positives, the rule shown in the report (e.g. PY-RSA-KEYGEN).
+  - type: textarea
+    id: snippet
+    attributes:
+      label: Minimal code or configuration
+      description: The smallest snippet that reproduces it. Remove secrets and real keys.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why is the result wrong?
+      description: Links to library documentation or standards help a lot.
