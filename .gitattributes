@@ -1,0 +1,8 @@
+* text=auto eol=lf
+*.png binary
+*.der binary
+*.p12 binary
+*.pfx binary
+
+# Sample reports are generated output.
+docs/examples/** linguist-generated=true
