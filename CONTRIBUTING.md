@@ -43,4 +43,4 @@ Contributions are accepted under the Apache License 2.0. Please sign off your co
 
 ## Conduct
 
-This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md). Report concerns to conduct@postshor.org.
+This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md). Report concerns by email to the contact address on the [postshor GitHub organization profile](https://github.com/postshor).
