@@ -1,25 +1,25 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/postshor-lockup-on-dark.svg">
-    <img src="docs/assets/postshor-lockup-on-light.svg" alt="PostShor" width="320">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/postshor/.github/main/brand/logo/postshor-lockup-on-dark.png">
+    <img src="https://raw.githubusercontent.com/postshor/.github/main/brand/logo/postshor-lockup-on-light.png" alt="PostShor" width="320">
   </picture>
 </p>
 
 <p align="center">
   <a href="https://github.com/postshor/postshor/actions/workflows/ci.yml"><img src="https://github.com/postshor/postshor/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-0B0E14" alt="License: Apache-2.0"></a>
+  <a href="https://github.com/postshor/postshor/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-0B0E14" alt="License: Apache-2.0"></a>
   <img src="https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-0B0E14" alt="Python 3.11 | 3.12 | 3.13">
-  <a href="docs/spec/qrs-v1.md"><img src="https://img.shields.io/badge/QRS-v1%20draft-FFA630" alt="Quantum Readiness Score v1 draft"></a>
+  <a href="https://github.com/postshor/postshor/blob/main/docs/spec/qrs-v1.md"><img src="https://img.shields.io/badge/QRS-v1%20draft-FFA630" alt="Quantum Readiness Score v1 draft"></a>
 </p>
 
 # PostShor
 
 **Find every piece of quantum-vulnerable cryptography in your software, and get the plan to fix it.**
 
-PostShor scans source code, dependencies, certificates, keys, server configuration, infrastructure-as-code and live TLS endpoints for cryptography that a quantum computer will break. It produces a prioritised migration plan, a standard CycloneDX cryptography bill of materials (CBOM), and an open, comparable [Quantum Readiness Score](docs/spec/qrs-v1.md).
+PostShor scans source code, dependencies, certificates, keys, server configuration, infrastructure-as-code and live TLS endpoints for cryptography that a quantum computer will break. It produces a prioritised migration plan, a standard CycloneDX cryptography bill of materials (CBOM), and an open, comparable [Quantum Readiness Score](https://github.com/postshor/postshor/blob/main/docs/spec/qrs-v1.md).
 
 ```
-pip install git+https://github.com/postshor/postshor   # PyPI release coming soon
+pip install postshor
 postshor scan .
 ```
 
@@ -82,7 +82,7 @@ postshor scan . -o report.html -o cbom.cdx.json -o results.sarif -o summary.md -
 | `.md` | Markdown summary with badge | Pull-request comments, CI job summaries |
 | `.json` | Complete native output | Automation |
 
-See [docs/examples](docs/examples) for sample output.
+See [docs/examples](https://github.com/postshor/postshor/tree/main/docs/examples) for sample output.
 
 ## In CI
 
@@ -105,7 +105,7 @@ Findings appear in GitHub code scanning; the job summary shows the score and mig
 
 ```yaml
 - repo: https://github.com/postshor/postshor
-  rev: main   # pin to a release tag once v0.1.0 is published
+  rev: v0.1.0
   hooks: [{ id: postshor }]
 ```
 
@@ -137,7 +137,7 @@ Suppress a single line with a `postshor:ignore` comment on it or on the line abo
 
 ## Quantum Readiness Score
 
-Every scan produces a score from 0 to 100 and a grade from A to F, following the open [QRS v1 specification](docs/spec/qrs-v1.md). Severity reflects *when* the risk becomes real: key exchange and encryption are CRITICAL because they can be harvested today; signatures are HIGH because forgery needs a working quantum computer. Any critical finding caps the grade at C.
+Every scan produces a score from 0 to 100 and a grade from A to F, following the open [QRS v1 specification](https://github.com/postshor/postshor/blob/main/docs/spec/qrs-v1.md). Severity reflects *when* the risk becomes real: key exchange and encryption are CRITICAL because they can be harvested today; signatures are HIGH because forgery needs a working quantum computer. Any critical finding caps the grade at C.
 
 Show it in your README with `postshor scan . --badge`:
 
@@ -153,10 +153,10 @@ PostShor uses pattern matching and real parsing (certificates, keys, manifests, 
 
 ## Project
 
-- [Roadmap](ROADMAP.md)
-- [Architecture](docs/architecture.md)
-- [Contributing](CONTRIBUTING.md): new rules with tests are the most valuable contribution
-- [Security policy](SECURITY.md)
-- [QRS specification](docs/spec/qrs-v1.md) (CC BY 4.0)
+- [Roadmap](https://github.com/postshor/postshor/blob/main/ROADMAP.md)
+- [Architecture](https://github.com/postshor/postshor/blob/main/docs/architecture.md)
+- [Contributing](https://github.com/postshor/postshor/blob/main/CONTRIBUTING.md): new rules with tests are the most valuable contribution
+- [Security policy](https://github.com/postshor/postshor/blob/main/SECURITY.md)
+- [QRS specification](https://github.com/postshor/postshor/blob/main/docs/spec/qrs-v1.md) (CC BY 4.0)
 
-Licensed under the [Apache License 2.0](LICENSE).
+Licensed under the [Apache License 2.0](https://github.com/postshor/postshor/blob/main/LICENSE).

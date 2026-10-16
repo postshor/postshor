@@ -33,6 +33,8 @@ postshor = "postshor.cli:main"
 [project.urls]
 Homepage = "https://github.com/postshor/postshor"
 Issues = "https://github.com/postshor/postshor/issues"
+Changelog = "https://github.com/postshor/postshor/blob/main/CHANGELOG.md"
+"QRS specification" = "https://github.com/postshor/postshor/blob/main/docs/spec/qrs-v1.md"
 
 [tool.hatch.version]
 path = "src/postshor/__init__.py"

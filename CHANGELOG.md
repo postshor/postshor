@@ -4,11 +4,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
-### Changed
-
-- SARIF output now contains only problems: quantum-safe (INFO) findings are kept out of code-scanning alerts and remain in the JSON, HTML and CBOM reports.
-
-## [0.1.0] - 2026-10-15
+## [0.1.0] - 2026-10-17
 
 ### Added
 
@@ -20,6 +16,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Quantum Readiness Score (QRS) v1 and its specification (`docs/spec/qrs-v1.md`, draft for comment).
 - Baselines, inline `postshor:ignore` suppression, `.postshor.toml` configuration, test-code severity cap.
 - GitHub Action, pre-commit hook and Dockerfile.
+- SARIF output contains only problems; quantum-safe (INFO) findings stay in the JSON, HTML and CBOM reports.
 
 [Unreleased]: https://github.com/postshor/postshor/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/postshor/postshor/releases/tag/v0.1.0
