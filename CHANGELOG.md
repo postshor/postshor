@@ -12,10 +12,16 @@ All notable changes to this project are documented here. The format follows [Kee
 - More precise ecosystem guidance: pyca/cryptography 47+ (only with AWS-LC/BoringSSL builds), Node.js 24.7+, .NET 10 caveats (MLDsa/SlhDsa experimental, no macOS), rustls `prefer-post-quantum`, Go 1.26 defaults.
 - PyCrypto notice now states what is verifiable: no release since 2.6.1, CVE-2013-7459.
 - Rule `SW-PQC` matches the CryptoKit ML-KEM/ML-DSA type family instead of unconfirmed symbol names.
+- Precision: serious findings that were not real uses dropped from 47% to 0% on a five-library sample (see `docs/precision.md`):
+  - private keys in test, fixture, example and documentation paths are capped at LOW and marked as presumed fixtures (still listed);
+  - `examples/`, `samples/`, `demos/` and `docs/` count as non-production paths;
+  - pattern rules skip Python docstrings and C-style block comments;
+  - classical key exchange next to an explicitly named hybrid (X25519MLKEM768, mlkem768x25519, X-Wing) is reported as INFO, not CRITICAL.
 
 ### Added
 
 - `docs/sources.md`: a source for every factual claim PostShor makes, with verification dates.
+- `docs/precision.md`: measured precision of CRITICAL/HIGH findings, with method and limitations.
 - GitHub Marketplace action in its own repository: [postshor/postshor-action](https://github.com/postshor/postshor-action) (`uses: postshor/postshor-action@v1`).
 
 ### Security

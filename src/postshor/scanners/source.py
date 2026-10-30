@@ -37,13 +37,14 @@ class SourceScanner:
             lineno = bisect.bisect_right(line_starts, m.start())
             best[(lineno, "secret")] = _private_key_finding(rel_path, lineno, m)
 
+        doc_lines = _documentation_lines(text, kinds, line_starts)
         for rule in rules:
             for m in rule.regex.finditer(text):
                 lineno = bisect.bisect_right(line_starts, m.start())
                 line = lines[lineno - 1]
                 if rule.unless_regex and rule.unless_regex.search(line):
                     continue
-                if _is_comment(line):
+                if _is_comment(line) or lineno in doc_lines:
                     continue
                 if _suppressed(lines, lineno):
                     suppressed += 1
@@ -55,7 +56,83 @@ class SourceScanner:
                 if key not in best or finding.severity > best[key].severity:
                     best[key] = finding
         findings = _drop_generic_ecc(list(best.values()))
+        _mark_hybrid_components(findings, text, line_starts)
         return sorted(findings, key=lambda f: f.location.line or 0), suppressed
+
+
+_PY_TRIPLE_QUOTED = re.compile(r'("""|\'\'\')(.*?)\1', re.DOTALL)
+_BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
+_C_LIKE = {"javascript", "jvm", "go", "c", "csharp", "rust", "php", "swift"}
+
+
+def _documentation_lines(text: str, kinds: set[str], line_starts: list[int]) -> set[int]:
+    """Line numbers inside Python triple-quoted strings (docstrings) or C-style block comments.
+
+    Pattern rules skip these lines: algorithm names in documentation ("e.g. 'ES256'") are not
+    uses of cryptography. Private-key detection still runs on them.
+    """
+    spans = []
+    if "python" in kinds:
+        spans += _python_triple_quoted_spans(text, line_starts)
+    if kinds & _C_LIKE:
+        spans += [m.span() for m in _BLOCK_COMMENT.finditer(text)]
+    lines: set[int] = set()
+    for start, end in spans:
+        first = bisect.bisect_right(line_starts, start)
+        last = bisect.bisect_right(line_starts, max(start, end - 1))
+        lines.update(range(first, last + 1))
+    return lines
+
+
+# Explicit hybrid naming only: a bare "ML-KEM" mention elsewhere in a file does not make an
+# independent ECDH use safe (that case must stay CRITICAL).
+_HYBRID_MARKER = re.compile(
+    r"x25519mlkem\d+|secp\d+r1mlkem\d+|mlkem\d+x25519|mlkem\d+nistp\d+|x25519kyber\d+|sntrup761x25519|x-?wing|\bhybrid\b",
+    re.IGNORECASE,
+)
+_HYBRID_WINDOW = 40  # lines
+# Configuration checks decide per line whether a PQ group is present; never soften them.
+_PER_LINE_CHECKS = {r.id for r in RULES if r.unless}
+
+
+def _mark_hybrid_components(findings: list[Finding], text: str, line_starts: list[int]) -> None:
+    """Classical key exchange near an explicitly named hybrid (X25519MLKEM768, mlkem768x25519-sha256,
+    X-Wing, ...) is the classical half of that hybrid, which is quantum-safe as a whole.
+    Found on paramiko's kex_mlkem.py during the false-positive review (2026-10-30)."""
+    marker_lines = [bisect.bisect_right(line_starts, m.start()) for m in _HYBRID_MARKER.finditer(text)]
+    if not marker_lines:
+        return
+    for f in findings:
+        if f.rule_id in _PER_LINE_CHECKS:
+            continue
+        if f.algorithm in ("x25519", "ecdh", "dh") and f.usage is Usage.KEY_EXCHANGE and f.location.line:
+            nearest = min(abs(f.location.line - m) for m in marker_lines)
+            if nearest <= _HYBRID_WINDOW:
+                f.details["context"] = "hybrid"
+                f.details["original_severity"] = f.severity.label
+                f.severity = Severity.INFO
+                f.confidence = "medium"
+                f.message = ("Classical key exchange used next to ML-KEM: likely the classical component of a hybrid "
+                             "post-quantum key exchange, which is quantum-safe as a whole. " + f.message)
+                f.remediation = "No action if this is part of a hybrid with ML-KEM; verify the classical exchange is not also used on its own."
+
+
+def _python_triple_quoted_spans(text: str, line_starts: list[int]) -> list[tuple[int, int]]:
+    """Character spans of triple-quoted string literals, found with Python's own tokenizer so that
+    quote characters inside other strings cannot misalign the pairing. Falls back to a regex for
+    files that do not tokenize (syntax errors, other Python versions)."""
+    import io
+    import tokenize
+
+    spans = []
+    try:
+        for tok in tokenize.generate_tokens(io.StringIO(text).readline):
+            if tok.type == tokenize.STRING and tok.string.lstrip("rbuRBUfF").startswith(('"""', "'''")):
+                (sl, sc), (el, ec) = tok.start, tok.end
+                spans.append((line_starts[sl - 1] + sc, line_starts[el - 1] + ec))
+    except (tokenize.TokenError, IndentationError, SyntaxError):
+        return [m.span() for m in _PY_TRIPLE_QUOTED.finditer(text)]
+    return spans
 
 
 _SPECIFIC_EC = {"ecdsa", "ecdh", "x25519", "eddsa"}

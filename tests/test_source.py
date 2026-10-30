@@ -112,3 +112,59 @@ def test_remediation_hints_reflect_verified_facts():
     assert "Java 24+ provides" not in LANGUAGE_HINTS["jvm"]
     assert "AWS-LC or BoringSSL" in LANGUAGE_HINTS["python"]
     assert "24.7" in LANGUAGE_HINTS["javascript"]
+
+
+def test_python_docstrings_are_not_findings():
+    scanner = SourceScanner()
+    text = 'def sign(alg):\n    """Sign a token.\n\n    :param alg: e.g. "ES256"\n    >>> rsa.generate_private_key(65537, 2048)\n    """\n    return "RS256"\n'
+    found, _ = scanner.scan("api.py", text, {"python", "any"})
+    assert [(f.rule_id, f.location.line) for f in found] == [("JOSE-RSA-SIG", 7)]
+
+
+def test_block_comments_are_not_findings():
+    scanner = SourceScanner()
+    text = '/*\n  Example: generateKeyPairSync("rsa", {...})\n*/\nconst k = generateKeyPairSync("ec", {});\n'
+    found, _ = scanner.scan("keys.js", text, {"javascript", "any"})
+    assert [f.location.line for f in found] == [4]
+
+
+def test_private_key_in_docstring_is_still_reported():
+    scanner = SourceScanner()
+    header = "-----BEGIN " + "PRIVATE KEY-----"
+    found, _ = scanner.scan("settings.py", f'"""\n{header}\nMIIB\n"""\n', {"python", "any"})
+    assert [f.rule_id for f in found] == ["GEN-EMBEDDED-PRIVATE-KEY"]
+
+
+def test_classical_half_of_hybrid_is_not_critical():
+    scanner = SourceScanner()
+    text = ("from cryptography.hazmat.primitives.asymmetric.x25519 import X25519PrivateKey\n"
+            "class KexMLKEM768X25519:\n"
+            "    name = 'mlkem768x25519-sha256'\n"
+            "    def start(self):\n"
+            "        self.key = X25519PrivateKey.generate()\n")
+    found, _ = scanner.scan("kex_mlkem.py", text, {"python", "any"})
+    x = next(f for f in found if f.rule_id == "PY-X25519")
+    assert x.severity == Severity.INFO and x.details["context"] == "hybrid"
+
+
+def test_classical_key_exchange_far_from_mlkem_stays_critical():
+    scanner = SourceScanner()
+    text = "# ML-KEM support planned\n" + "\n" * 60 + "key = X25519PrivateKey.generate()\n"
+    found, _ = scanner.scan("kex.py", text, {"python", "any"})
+    assert next(f for f in found if f.rule_id == "PY-X25519").severity == Severity.CRITICAL
+
+
+def test_plain_mlkem_mention_does_not_soften_independent_ecdh(result):
+    # Fixture Crypto.java uses ECDH (line 9) and, separately, ML-KEM (line 11): ECDH stays critical.
+    assert all(f.severity == Severity.CRITICAL for f in hits(result, "JVM-ECDH"))
+
+
+def test_docstring_detection_survives_quotes_inside_other_strings():
+    # A regex for triple quotes appears before the docstring; naive pairing would misalign.
+    scanner = SourceScanner()
+    text = ("PATTERN = r'(\"\"\"|\'\'\')'\n"
+            "def f():\n"
+            "    \"\"\"Docs mention 'ES256' as an example.\"\"\"\n"
+            "    return 1\n")
+    found, _ = scanner.scan("mod.py", text, {"python", "any"})
+    assert not [f for f in found if f.rule_id.startswith("JOSE")]

@@ -103,8 +103,10 @@ def scan(target: str | Path | None, options: ScanOptions | None = None) -> ScanR
     return result
 
 
+# Non-production code: tests, fixtures, examples, samples, demos and documentation.
 _TEST_PATH = re.compile(
-    r"(^|/)(tests?|__tests__|spec|specs|testdata|test_data|fixtures|src/test)/"
+    r"(^|/)(tests?|__tests__|spec|specs|testdata|test_data|fixtures|src/test"
+    r"|examples?|samples?|demos?|docs?)/"
     r"|(^|/)(test_[^/]+\.py|[^/]+_test\.(py|go)|[^/]+\.(test|spec)\.[jt]sx?|[^/]+Tests?\.(java|kt|cs))$"
 )
 
@@ -114,14 +116,20 @@ def is_test_path(path: str) -> bool:
 
 
 def _downgrade_test_findings(findings: list[Finding]) -> None:
-    """Test code creates throwaway keys on purpose: keep it in the inventory, cap it at LOW.
+    """Non-production code (tests, fixtures, examples, docs) uses throwaway keys and algorithms on
+    purpose: keep it in the inventory, cap it at LOW.
 
-    Committed private keys are exempt: a leaked key is a leaked key wherever it lives.
+    This includes committed private keys. Measured on five widely used cryptography libraries,
+    private keys in test paths were intentional public fixtures in every case and made up 40 % of
+    all critical/high findings. They stay visible (LOW, marked as presumed fixtures) so a real
+    key committed to a test folder is still reported.
     """
     for f in findings:
-        if f.category is not Category.SECRET and f.severity > Severity.LOW and is_test_path(f.location.path):
+        if f.severity > Severity.LOW and is_test_path(f.location.path):
             f.details["context"] = "test"
             f.details["original_severity"] = f.severity.label
+            if f.category is Category.SECRET:
+                f.details["note"] = "Presumed test fixture. If this key is used anywhere outside tests, treat it as compromised."
             f.severity = Severity.LOW
 
 

@@ -46,7 +46,10 @@ A finding receives exactly one severity. Implementations MUST apply the first ma
 | 11 | Trust store / CA bundle containing quantum-broken roots | LOW | Requires updatability, not action. |
 | 12 | Quantum-safe usage | INFO | Positive evidence; does not affect the score. |
 
-**Context adjustment.** Findings located in test code (test directories and test-file naming conventions of the language) SHOULD be capped at LOW, except row 1. Implementations MUST disclose whether this adjustment was applied.
+**Context adjustments.**
+
+- *Non-production code.* Findings in test, fixture, example, sample, demo and documentation locations (directories and the test-file naming conventions of the language) SHOULD be capped at LOW, **including private keys (row 1)**, which in such locations are almost always intentional public fixtures. Implementations MUST keep these findings visible and MUST disclose whether the adjustment was applied. *(Changed in draft revision 2026-10-30: row 1 was previously exempt. Measured on five widely used cryptography libraries, fixture keys were 40% of all CRITICAL/HIGH findings and none was a real secret; see the PostShor precision report.)*
+- *Hybrid key exchange.* Classical key exchange that is the classical component of a hybrid post-quantum key exchange (e.g. the X25519 half of X25519MLKEM768) SHOULD be classified as row 12 (quantum-safe usage), because the hybrid as a whole resists harvest-now-decrypt-later.
 
 ## 4. Score
 

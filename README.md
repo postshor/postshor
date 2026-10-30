@@ -131,7 +131,7 @@ disable_rules = ["JOSE-RSA-SIG"]
 fail_on = "critical"
 min_severity = "low"
 tls_targets = ["api.example.com"]
-downgrade_tests = true          # cap findings in test code at LOW (default)
+downgrade_tests = true          # cap findings in tests, fixtures, examples and docs at LOW (default)
 ```
 
 Suppress a single line with a `postshor:ignore` comment on it or on the line above.

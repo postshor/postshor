@@ -56,3 +56,18 @@ def test_cli_bad_path_is_error():
 def test_rules_command(capsys):
     assert main(["rules"]) == 0
     assert "PY-RSA-KEYGEN" in capsys.readouterr().out
+
+
+def test_fixture_keys_and_examples_are_capped_but_visible(tmp_path):
+    from postshor import engine
+
+    header = "-----BEGIN " + "RSA PRIVATE KEY-----"
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "keys.py").write_text(f'KEY = """{header}\nMIIB\n"""\n')
+    (tmp_path / "examples").mkdir()
+    (tmp_path / "examples" / "demo.py").write_text("from cryptography.hazmat.primitives.asymmetric import rsa\nk = rsa.generate_private_key(65537, 2048)\n")
+    (tmp_path / "app.py").write_text("from cryptography.hazmat.primitives.asymmetric import rsa\nk = rsa.generate_private_key(65537, 2048)\n")
+    found = {f.location.path: f for f in engine.scan(tmp_path).findings}
+    assert found["tests/keys.py"].severity == Severity.LOW and "fixture" in found["tests/keys.py"].details["note"]
+    assert found["examples/demo.py"].severity == Severity.LOW
+    assert found["app.py"].severity == Severity.HIGH
