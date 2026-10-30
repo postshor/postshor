@@ -49,7 +49,7 @@ Summary
 
 | Surface | How | Examples |
 |---|---|---|
-| Source code | 170 rules for Python, JavaScript/TypeScript, Java/Kotlin, Go, C/C++, C#, Rust, PHP, Ruby, Swift | `rsa.generate_private_key`, `KeyAgreement.getInstance("ECDH")`, `crypto.createECDH`, OpenSSL/mbedTLS/wolfSSL calls |
+| Source code | 188 rules for Python, JavaScript/TypeScript, Java/Kotlin, Go, C/C++, C#, Rust, PHP, Ruby, Swift | `rsa.generate_private_key`, `KeyAgreement.getInstance("ECDH")`, `crypto.createECDH`, OpenSSL/mbedTLS/wolfSSL calls |
 | Dependencies | 57 known crypto libraries across PyPI, npm, Go, Cargo, Maven/Gradle, NuGet, Composer, RubyGems | `pycrypto`, `node-forge`, `elliptic`, Go toolchains older than 1.24 |
 | Certificates & keys | Parses PEM/DER/PKCS#12/OpenSSH | RSA-1024 certs, CA certs valid past 2035, private keys committed to the repo |
 | Server configuration | nginx, Apache, HAProxy, OpenSSL, OpenSSH | TLS groups without `X25519MLKEM768`, SSH without `mlkem768x25519-sha256`, no TLS 1.3 |
