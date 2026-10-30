@@ -10,6 +10,7 @@
   <a href="https://github.com/postshor/postshor/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-0B0E14" alt="License: Apache-2.0"></a>
   <img src="https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-0B0E14" alt="Python 3.11 | 3.12 | 3.13">
   <a href="https://github.com/postshor/postshor/blob/main/docs/spec/qrs-v1.md"><img src="https://img.shields.io/badge/QRS-v1%20draft-FFA630" alt="Quantum Readiness Score v1 draft"></a>
+  <a href="https://github.com/marketplace/actions/postshor"><img src="https://img.shields.io/badge/GitHub%20Marketplace-PostShor-0B0E14?logo=github" alt="GitHub Marketplace"></a>
 </p>
 
 # PostShor
