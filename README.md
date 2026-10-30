@@ -136,6 +136,29 @@ downgrade_tests = true          # cap findings in tests, fixtures, examples and 
 
 Suppress a single line with a `postshor:ignore` comment on it or on the line above.
 
+### Custom rules
+
+Detect your own wrappers and in-house libraries with rules in the open [Rule Format v1](https://github.com/postshor/postshor/blob/main/docs/spec/rule-format-v1.md), the same TOML format as the built-in rules. Each rule carries the examples it must and must not match:
+
+```toml
+[[rule]]
+id = "ACME-LEGACY-SIGNER"
+title = "In-house RSA signing helper"
+targets = ["python"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''\bacme_sign_rsa\s*\('''
+
+[rule.tests]
+match = ['''sig = acme_sign_rsa(blob)''']
+no_match = ['''sig = acme_sign_mldsa(blob)''']
+```
+
+```
+postshor rules test acme-rules.toml       # validate and run the examples
+postshor scan . --rules acme-rules.toml   # or: rules = ["acme-rules.toml"] in .postshor.toml
+```
+
 ## Quantum Readiness Score
 
 Every scan produces a score from 0 to 100 and a grade from A to F, following the open [QRS v1 specification](https://github.com/postshor/postshor/blob/main/docs/spec/qrs-v1.md). Severity reflects *when* the risk becomes real: key exchange and encryption are CRITICAL because they can be harvested today; signatures are HIGH because forgery needs a working quantum computer. Any critical finding caps the grade at C.
@@ -150,7 +173,7 @@ PostShor uses pattern matching and real parsing (certificates, keys, manifests, 
 
 - A finding means "a quantum-vulnerable primitive is used here". It does not mean the code is exploitable today.
 - A clean scan means no known patterns were found, not that the system is quantum-safe. Dynamically chosen algorithms, compiled binaries and hardware modules need additional review.
-- Run `postshor rules` to see every rule.
+- Run `postshor rules` to see every rule, and `postshor rules test` to run every rule's examples.
 
 ## Project
 
@@ -158,7 +181,7 @@ PostShor uses pattern matching and real parsing (certificates, keys, manifests, 
 - [Architecture](https://github.com/postshor/postshor/blob/main/docs/architecture.md)
 - [Contributing](https://github.com/postshor/postshor/blob/main/CONTRIBUTING.md): new rules with tests are the most valuable contribution
 - [Security policy](https://github.com/postshor/postshor/blob/main/SECURITY.md)
-- [QRS specification](https://github.com/postshor/postshor/blob/main/docs/spec/qrs-v1.md) (CC BY 4.0)
+- [QRS specification](https://github.com/postshor/postshor/blob/main/docs/spec/qrs-v1.md) and [Rule Format specification](https://github.com/postshor/postshor/blob/main/docs/spec/rule-format-v1.md) (CC BY 4.0)
 
 Licensed under the [Apache License 2.0](https://github.com/postshor/postshor/blob/main/LICENSE).
 

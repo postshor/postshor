@@ -4,6 +4,16 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- **Rule Format v1** (`docs/spec/rule-format-v1.md`, CC BY 4.0): detection rules are TOML data with their own `match`/`no_match` examples. All 188 built-in rules now live in `src/postshor/rules/data/`, with 425 examples.
+- Custom rule files: `postshor scan --rules FILE` and `rules = [...]` in `.postshor.toml`. Files are validated on load and every problem is reported at once.
+- `postshor rules test [FILE ...]` runs rule examples; `postshor rules --algorithms` lists the algorithm IDs rules can report.
+
+### Changed
+
+- Rules that report different algorithms depending on the matched text (Paramiko key classes, SSH key types, HTTP signature and HPKE algorithms, IaC key types) use declarative `refine` entries instead of special cases in code. Findings on the nine-repository precision corpus are identical before and after the migration (661 findings).
+
 ## [0.2.0] - 2026-10-30
 
 ### Added

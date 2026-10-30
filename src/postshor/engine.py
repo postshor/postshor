@@ -10,6 +10,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from postshor.models import Category, Finding, ScanResult, Severity
+from postshor.rules import RULES, load_rule_files
 from postshor.scanners import certificates, dependencies, files, tls
 from postshor.scanners.source import SourceScanner, scan_file
 
@@ -21,6 +22,7 @@ class ScanOptions:
     excludes: list[str] = field(default_factory=list)
     include_vendored: bool = False
     disabled_rules: set[str] = field(default_factory=set)
+    rule_files: list[Path] = field(default_factory=list)  # custom rules, in addition to the built-in ones
     min_severity: Severity = Severity.INFO
     source: bool = True
     deps: bool = True
@@ -42,6 +44,7 @@ class ScanOptions:
             opts.excludes = list(raw.get("exclude", []))
             opts.include_vendored = bool(raw.get("include_vendored", False))
             opts.disabled_rules = set(raw.get("disable_rules", []))
+            opts.rule_files = [base / p for p in raw.get("rules", [])]
             if "min_severity" in raw:
                 opts.min_severity = Severity.parse(raw["min_severity"])
             opts.tls_targets = list(raw.get("tls_targets", []))
@@ -57,7 +60,7 @@ def scan(target: str | Path | None, options: ScanOptions | None = None) -> ScanR
     findings: list[Finding] = []
 
     if root is not None and root.exists():
-        src = SourceScanner(disabled=options.disabled_rules)
+        src = SourceScanner(RULES + load_rule_files(options.rule_files, RULES), options.disabled_rules)
         for path in files.walk(root, options.excludes, options.include_vendored):
             rel = path.relative_to(root).as_posix() if path != root else path.name
             try:

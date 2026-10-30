@@ -10,7 +10,8 @@ from pathlib import Path
 from postshor import __version__, engine, score
 from postshor.models import Severity
 from postshor.reporting import FORMATS, console, format_for_path
-from postshor.rules import ALGORITHMS, RULES
+from postshor.rules import ALGORITHMS, RULES, load_rule_files
+from postshor.rules.testing import check_rule
 
 EXIT_OK, EXIT_POLICY, EXIT_ERROR = 0, 1, 2
 
@@ -49,6 +50,8 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--exclude", action="append", default=[], metavar="GLOB", help="exclude paths (repeatable)")
     s.add_argument("--include-vendored", action="store_true", help="also scan vendor/, third_party/ and similar")
     s.add_argument("--disable-rule", action="append", default=[], metavar="RULE_ID")
+    s.add_argument("--rules", action="append", default=[], type=Path, metavar="FILE",
+                   help="add custom rules from a rule file (docs/spec/rule-format-v1.md). Repeatable.")
     s.add_argument("--no-source", action="store_true", help="skip source/config pattern rules")
     s.add_argument("--no-deps", action="store_true", help="skip dependency manifests")
     s.add_argument("--no-keys", action="store_true", help="skip certificate and key files")
@@ -64,8 +67,12 @@ def build_parser() -> argparse.ArgumentParser:
     t.add_argument("--timeout", type=float, default=5.0)
     _add_report_args(t)
 
-    r = sub.add_parser("rules", help="list detection rules")
+    r = sub.add_parser("rules", help="list detection rules, or test them against their examples")
+    r.add_argument("action", nargs="?", choices=["list", "test"], default="list",
+                   help="list (default) or test: run every rule's match/no_match examples")
+    r.add_argument("files", nargs="*", type=Path, metavar="FILE", help="custom rule files (default: built-in rules)")
     r.add_argument("--json", action="store_true")
+    r.add_argument("--algorithms", action="store_true", help="list the algorithm IDs rules can report")
 
     b = sub.add_parser("baseline", help="record current findings so future scans only report new ones")
     b.add_argument("path", nargs="?", default=".")
@@ -102,6 +109,7 @@ def _cmd_scan(args) -> int:
     options.excludes += args.exclude
     options.include_vendored |= args.include_vendored
     options.disabled_rules |= set(args.disable_rule)
+    options.rule_files += args.rules
     options.source, options.deps, options.keys = not args.no_source, not args.no_deps, not args.no_keys
     options.tls_targets += args.tls
     if args.tests_as_production:
@@ -153,17 +161,37 @@ def _finish(result, args) -> int:
 
 
 def _cmd_rules(args) -> int:
+    if args.algorithms:
+        for key, algo in ALGORITHMS.items():
+            print(f"{key:<16}  {algo.name}")
+        return EXIT_OK
+    rules = load_rule_files(args.files, RULES) if args.files else RULES
+    if args.action == "test":
+        return _test_rules(rules)
     if args.json:
         print(json.dumps([
             {"id": r.id, "kinds": list(r.kinds), "algorithm": r.algorithm, "usage": r.usage.value,
-             "title": r.title, "confidence": r.confidence, "pattern": r.pattern, "unless": r.unless}
-            for r in RULES], indent=2))
+             "title": r.title, "confidence": r.confidence, "pattern": r.pattern, "unless": r.unless,
+             "origin": r.origin}
+            for r in rules], indent=2))
         return EXIT_OK
-    width = max(len(r.id) for r in RULES)
-    for r in RULES:
+    width = max(len(r.id) for r in rules)
+    for r in rules:
         print(f"{r.id:<{width}}  {ALGORITHMS[r.algorithm].name:<32}  {r.title}")
-    print(f"\n{len(RULES)} pattern rules, plus certificate/key parsing, dependency manifests and live TLS probing.")
+    if args.files:
+        print(f"\n{len(rules)} custom rules in {len(args.files)} file(s), all valid.")
+    else:
+        print(f"\n{len(RULES)} pattern rules, plus certificate/key parsing, dependency manifests and live TLS probing.")
     return EXIT_OK
+
+
+def _test_rules(rules) -> int:
+    failures = [msg for r in rules for msg in check_rule(r)]
+    examples = sum(len(r.match_examples) + len(r.no_match_examples) for r in rules)
+    for msg in failures:
+        print(f"FAIL {msg}")
+    print(f"{len(rules)} rules, {examples} examples: {len(failures)} failed")
+    return EXIT_POLICY if failures else EXIT_OK
 
 
 def _cmd_baseline(args) -> int:
