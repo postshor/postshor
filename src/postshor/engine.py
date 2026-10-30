@@ -111,8 +111,17 @@ _TEST_PATH = re.compile(
 )
 
 
+# Directories named like "caddytest" or "integration_tests" are test code too, but these ordinary
+# words end in "test" and must not hide production code (e.g. remote attestation in "attest/").
+_NOT_TEST_DIRS = {"latest", "attest", "contest", "protest", "detest", "manifest", "fastest", "largest",
+                  "smallest", "greatest", "newest", "oldest", "highest", "lowest", "shortest", "longest"}
+
+
 def is_test_path(path: str) -> bool:
-    return bool(_TEST_PATH.search(path))
+    if _TEST_PATH.search(path):
+        return True
+    dirs = path.split("/")[:-1]
+    return any(d.lower().endswith(("test", "tests")) and d.lower() not in _NOT_TEST_DIRS for d in dirs)
 
 
 def _downgrade_test_findings(findings: list[Finding]) -> None:

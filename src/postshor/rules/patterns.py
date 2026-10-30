@@ -43,6 +43,7 @@ class Rule:
     confidence: str = "high"
     unless: str | None = None
     severity: Severity | None = None  # override the derived severity
+    unless_scope: str = "line"  # "line": test `unless` on the matched line; "match": on the (multi-line) match
     flags: int = 0
     regex: re.Pattern = field(init=False, repr=False)
     unless_regex: re.Pattern | None = field(init=False, repr=False)
@@ -103,13 +104,23 @@ RULES: list[Rule] = [
     Rule("GO-RSA-ENC", ("go",), r"\brsa\.(?:EncryptOAEP|EncryptPKCS1v15|DecryptOAEP|DecryptPKCS1v15)\(", "rsa", E, "RSA encryption"),
     Rule("GO-RSA-SIG", ("go",), r"\brsa\.(?:SignPKCS1v15|SignPSS|VerifyPKCS1v15|VerifyPSS)\(", "rsa", S, "RSA signature"),
     Rule("GO-ECDSA", ("go",), r"\becdsa\.(?:GenerateKey|Sign|SignASN1|Verify|VerifyASN1)\(", "ecdsa", S, "ECDSA"),
-    Rule("GO-ECDH", ("go",), r"\becdh\.(?:P256|P384|P521)\(\)", "ecdh", K, "ECDH key agreement"),
-    Rule("GO-X25519", ("go",), r"\becdh\.X25519\(\)|\bcurve25519\.(?:X25519|ScalarMult)\(", "x25519", K, "X25519 key agreement"),
+    # crypto/ecdh is also used just to parse or convert keys (e.g. WebAuthn signature keys), so only
+    # key generation and the exchange itself count as key agreement.
+    Rule("GO-ECDH", ("go",), r"\becdh\.(?:P256|P384|P521)\(\)\.GenerateKey\(", "ecdh", K, "ECDH key agreement"),
+    Rule("GO-ECDH-KEY", ("go",), r"\becdh\.(?:P256|P384|P521)\(\)\.New(?:Public|Private)Key\(", "ecc", U, "Elliptic-curve key (crypto/ecdh)"),
+    Rule("GO-ECDH-EXCHANGE", ("go",), r"\.ECDH\(\s*\w", "ecdh", K, "ECDH shared-secret computation", "medium"),
+    Rule("GO-X25519", ("go",), r"\becdh\.X25519\(\)\.GenerateKey\(|\bcurve25519\.(?:X25519|ScalarMult)\(", "x25519", K, "X25519 key agreement"),
+    Rule("GO-X25519-KEY", ("go",), r"\becdh\.X25519\(\)\.New(?:Public|Private)Key\(", "x25519", U, "X25519 key (crypto/ecdh)"),
     Rule("GO-ELLIPTIC", ("go",), r"\belliptic\.(?:P224|P256|P384|P521)\(\)", "ecc", U, "Elliptic curve (crypto/elliptic)"),
     Rule("GO-ED25519", ("go",), r"\bed25519\.(?:GenerateKey|Sign|NewKeyFromSeed)\(", "eddsa", S, "Ed25519 signature"),
     Rule("GO-DSA", ("go",), r"\bdsa\.GenerateKey\(", "dsa", S, "DSA key generation"),
-    Rule("GO-TLS-CURVES", ("go",), r"\bCurvePreferences\s*[:=]", "ecdh", K,
-         "TLS CurvePreferences pins classical groups only, disabling Go's default hybrid PQ key exchange", "medium", unless=_PQ_GROUP),
+    # A literal list can be judged; a list from a variable (user config, defaults table) cannot.
+    Rule("GO-TLS-CURVES", ("go",), r"\bCurvePreferences\s*(?::=|=(?!=)|:(?!=))\s*\[\]tls\.CurveID\s*\{[^}]*\}", "ecdh", K,
+         "TLS CurvePreferences pins classical groups only, disabling Go's default hybrid PQ key exchange",
+         unless=_PQ_GROUP, unless_scope="match"),
+    Rule("GO-TLS-CURVES-DYNAMIC", ("go",), r"\bCurvePreferences\s*(?::=|=(?!=)|:(?!=))\s*(?!\[\]tls\.CurveID)[\w(]", "ecdh", K,
+         "TLS CurvePreferences set from a variable: verify it includes X25519MLKEM768 (or leave it unset to keep Go's defaults)",
+         "medium", severity=Severity.LOW),
     Rule("GO-GODEBUG-NOPQ", ("go", "config", "iac", "any"), r"\btls(?:mlkem|kyber)=0\b", "ecdh", K, "GODEBUG disables post-quantum TLS key exchange"),
     Rule("GO-MD5", ("go",), r"\"crypto/md5\"", "md5", H, "MD5 hash (crypto/md5)"),
     Rule("GO-SHA1", ("go",), r"\"crypto/sha1\"", "sha1", H, "SHA-1 hash (crypto/sha1)"),
@@ -154,8 +165,10 @@ RULES: list[Rule] = [
     Rule("C-X25519", ("c",), r"\bEVP_PKEY_(?:X25519|X448)\b|\bcrypto_(?:box|kx|scalarmult)_\w+\b", "x25519", K, "X25519/X448 key agreement"),
     Rule("C-OSSL3-NAMED", ("c",), r"\bEVP_PKEY_(?:CTX_new_from_name|Q_keygen)\s*\([^;]*?\"(?:RSA|RSA-PSS)\"", "rsa", G, "RSA key (OpenSSL 3 by-name API)"),
     Rule("C-OSSL3-NAMED-EC", ("c",), r"\bEVP_PKEY_(?:CTX_new_from_name|Q_keygen)\s*\([^;]*?\"(?:EC|X25519|ED25519)\"", "ecc", G, "EC key (OpenSSL 3 by-name API)"),
-    Rule("C-TLS-GROUPS", ("c",), r"\bSSL_(?:CTX_)?set1_(?:groups|curves)_list\s*\(", "ecdh", K,
-         "TLS group list set without a post-quantum hybrid group", "medium", unless=_PQ_GROUP),
+    Rule("C-TLS-GROUPS", ("c",), r"\bSSL_(?:CTX_)?set1_(?:groups|curves)_list\s*\([^,;]*,\s*\"[^\"]*\"", "ecdh", K,
+         "TLS group list set without a post-quantum hybrid group", unless=_PQ_GROUP, unless_scope="match"),
+    Rule("C-TLS-GROUPS-DYNAMIC", ("c",), r"\bSSL_(?:CTX_)?set1_(?:groups|curves)_list\s*\([^,;]*,\s*(?!\")\S", "ecdh", K,
+         "TLS group list set from a variable: verify it includes X25519MLKEM768", "medium", severity=Severity.LOW),
     Rule("C-MD5", ("c",), r"\bMD5(?:_Init)?\s*\(|\bEVP_md5\s*\(", "md5", H, "MD5 hash"),
     Rule("C-SHA1", ("c",), r"\bSHA1(?:_Init)?\s*\(|\bEVP_sha1\s*\(", "sha1", H, "SHA-1 hash"),
     Rule("C-DES", ("c",), r"\bEVP_des_\w+\s*\(|\bDES_\w+crypt\b", "des", Y, "DES / 3DES cipher"),
@@ -183,6 +196,12 @@ RULES: list[Rule] = [
     Rule("RS-MD5-SHA1", ("rust",), r"\buse\s+md5::|\bMd5::new\(", "md5", H, "MD5 hash"),
     Rule("RS-SHA1", ("rust",), r"\buse\s+sha1::|\bSha1::new\(", "sha1", H, "SHA-1 hash"),
     Rule("RS-PQC", ("rust",), r"\buse\s+(?:ml_kem|ml_dsa|slh_dsa|pqcrypto\w*|oqs)::", "pqc", U, "Rust post-quantum crate"),
+    # Rust `openssl` crate (added after the recall check missed vaultwarden's RSA keys)
+    Rule("RS-OPENSSL-RSA", ("rust",), r"\bRsa::(?:generate|private_key_from_pem|private_key_from_der|public_key_from_pem|public_key_from_der|from_private_components|from_public_components)\b|\buse\s+openssl::rsa\b", "rsa", G, "RSA key (Rust openssl crate)"),
+    Rule("RS-OPENSSL-EC", ("rust",), r"\bEcKey::(?:generate|private_key_from_pem|private_key_from_der|from_private_components|from_public_key)\b|\buse\s+openssl::ec\b", "ecc", G, "Elliptic-curve key (Rust openssl crate)"),
+    Rule("RS-OPENSSL-EDDSA", ("rust",), r"\bPKey::generate_ed(?:25519|448)\b", "eddsa", S, "EdDSA key (Rust openssl crate)"),
+    Rule("RS-OPENSSL-X25519", ("rust",), r"\bPKey::generate_x(?:25519|448)\b", "x25519", K, "X25519/X448 key (Rust openssl crate)"),
+    Rule("RS-OPENSSL-DERIVE", ("rust",), r"\bDeriver::new\s*\(", "ecdh", K, "Key agreement (Rust openssl Deriver)", "medium"),
     # ------------------------------------------------------------------ PHP
     Rule("PHP-PKEY-NEW", ("php",), r"\bopenssl_pkey_new\s*\(", "rsa", G, "OpenSSL key generation (defaults to RSA)", "medium"),
     Rule("PHP-KEYTYPE-RSA", ("php",), r"\bOPENSSL_KEYTYPE_RSA\b", "rsa", G, "RSA key type"),
@@ -213,6 +232,24 @@ RULES: list[Rule] = [
     # Matches the CryptoKit ML-KEM/ML-DSA type family (MLKEM768, MLDSA65, ...) without asserting every
     # parameter-set name; X-Wing is covered by GEN-HYBRID-KEM.
     Rule("SW-PQC", ("swift",), r"\bML(?:KEM|DSA)\d{2,4}\b", "pqc", U, "CryptoKit post-quantum API"),
+    # ------------------------------------------------------------------ JWT / WebAuthn algorithm identifiers (code)
+    # golang-jwt jwt.SigningMethodRS256, Rust jsonwebtoken Algorithm::RS256, jjwt SignatureAlgorithm.RS256,
+    # Nimbus JWSAlgorithm.RS256, webauthn COSEAlgorithm::ES256, .NET SecurityAlgorithms.RsaSha256.
+    # The Go form requires a package qualifier (`jwt.`): applications use it qualified, while the
+    # library's own declarations, type names and method receivers are unqualified and are already
+    # covered by the JOSE string rules on their definition lines.
+    Rule("JWT-ALG-RSA", CODE, r"\b\w+\.SigningMethod(?:RS|PS)(?:256|384|512)\b|\b(?:Signature|JWS|COSE)?Algorithm(?:::|\.)(?:RS|PS)(?:256|384|512)\b|\bSecurityAlgorithms\.Rsa(?:Sha|SsaPssSha)(?:256|384|512)\b", "rsa", S, "JWT/COSE RSA signature algorithm identifier"),
+    Rule("JWT-ALG-ECDSA", CODE, r"\b\w+\.SigningMethodES(?:256K?|384|512)\b|\b(?:Signature|JWS|COSE)?Algorithm(?:::|\.)ES(?:256K?|384|512)\b|\bSecurityAlgorithms\.EcdsaSha(?:256|384|512)\b", "ecdsa", S, "JWT/COSE ECDSA signature algorithm identifier"),
+    Rule("JWT-ALG-EDDSA", CODE, r"\b\w+\.SigningMethodEdDSA\b|\b\w+\.SigningMethodEd25519\b|\b(?:Signature|JWS|COSE)?Algorithm(?:::|\.)(?:EdDSA|Ed25519)\b", "eddsa", S, "JWT/COSE EdDSA signature algorithm identifier"),
+    # ------------------------------------------------------------------ OpenPGP keys and HTTP message signatures
+    # Added after the recall check missed gitea's package-repository signing keys (long-lived, no rotation).
+    Rule("PGP-KEYGEN-GO", ("go",), r"\bopenpgp\.NewEntity\s*\(", "rsa", S, "OpenPGP key generation (RSA unless configured otherwise)", "medium"),
+    Rule("PGP-KEYGEN-PY", ("python",), r"\.gen_key_input\s*\(", "rsa", S, "OpenPGP key generation via python-gnupg (RSA by default)", "medium"),
+    Rule("PGP-KEYGEN-JS", ("javascript",), r"\bgenerateKey\s*\(\s*\{[^}]*\btype\s*:\s*['\"](?:rsa|ecc)['\"]", "rsa", S, "OpenPGP.js key generation"),
+    Rule("HTTPSIG-ALG", CODE, r"\bhttpsig\.(?:RSA_SHA\d+|ECDSA_SHA\d+|ED25519)\b|['\"](?:rsa-sha(?:256|512)|rsa-pss-sha512|ecdsa-p(?:256|384)-sha(?:256|384))['\"]", "rsa", S, "HTTP message signature algorithm"),
+    # ------------------------------------------------------------------ HPKE with classical KEMs (ECH, MLS, OHTTP)
+    # Added after the recall check missed Caddy's Encrypted Client Hello key generation.
+    Rule("HPKE-DHKEM", CODE, r"\b(?:KEM_(?:X25519|X448|P256|P384|P521)_HKDF_SHA(?:256|384|512)|DHKEM_?(?:X25519|X448|P256|P384|P521)\w*|(?:X25519|X448|DhP256|DhP384|DhP521)HkdfSha(?:256|384|512))\b", "x25519", K, "HPKE with a classical Diffie-Hellman KEM"),
     # ------------------------------------------------------------------ JOSE / JWT (code and config)
     Rule("JOSE-RSA-SIG", CODE + CONFIG, r"['\"](?:RS|PS)(?:256|384|512)['\"]", "rsa", S, "JWT/JOSE RSA signature algorithm", "medium"),
     Rule("JOSE-ECDSA-SIG", CODE + CONFIG, r"['\"]ES(?:256K?|384|512)['\"]", "ecdsa", S, "JWT/JOSE ECDSA signature algorithm", "medium"),
@@ -263,6 +300,18 @@ def algorithm_for_match(rule: Rule, match: re.Match) -> str:
     text = match.group(0)
     if rule.id in _GROUP_ALGORITHMS and match.groups():
         return _GROUP_ALGORITHMS[rule.id].get(match.group(1), rule.algorithm)
+    if rule.id == "CFG-SSH-RSA-HOSTKEY" and "ecdsa" in text.lower():
+        return "ecdsa"
+    if rule.id == "HPKE-DHKEM" and not re.search(r"X25519|X448", text, re.IGNORECASE):
+        return "ecdh"
+    if rule.id == "HTTPSIG-ALG":
+        low = text.lower()
+        if "ed25519" in low:
+            return "eddsa"
+        if "ecdsa" in low:
+            return "ecdsa"
+    if rule.id == "PGP-KEYGEN-JS" and "ecc" in text.lower():
+        return "ecc"
     if rule.id == "GEN-SSH-PUBKEY":
         if text.startswith("ecdsa"):
             return "ecdsa"

@@ -4,6 +4,21 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- Rules found by the round-2 recall check (`docs/precision.md`): Rust `openssl` crate (`RS-OPENSSL-*`); JWT/COSE algorithm identifiers (`JWT-ALG-*`); OpenPGP key generation (`PGP-KEYGEN-*`); HTTP message signatures (`HTTPSIG-ALG`); HPKE with classical KEMs, e.g. Encrypted Client Hello (`HPKE-DHKEM`); `GO-TLS-CURVES-DYNAMIC`, `C-TLS-GROUPS-DYNAMIC`, `GO-ECDH-KEY`, `GO-ECDH-EXCHANGE`, `GO-X25519-KEY`.
+
+### Changed
+
+- `GO-TLS-CURVES` and `C-TLS-GROUPS` judge the whole literal list (CRITICAL only when it is classical); lists set from a variable are reported as LOW for review.
+- `GO-ECDH` and `GO-X25519` report key exchange only for key generation and the exchange itself; parsing keys is reported as an elliptic-curve key.
+- Directories ending in `test`/`tests` (e.g. `caddytest/`) count as test code, except ordinary words such as `latest` or `attest`.
+
+### Fixed
+
+- Matches inside trailing `//` and `#` comments are no longer reported.
+- SSH ECDSA host keys are labelled ECDSA instead of RSA.
+
 ## [0.1.1] - 2026-10-30
 
 ### Fixed

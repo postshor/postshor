@@ -168,3 +168,86 @@ def test_docstring_detection_survives_quotes_inside_other_strings():
             "    return 1\n")
     found, _ = scanner.scan("mod.py", text, {"python", "any"})
     assert not [f for f in found if f.rule_id.startswith("JOSE")]
+
+
+def test_go_curve_preferences_literal_vs_dynamic():
+    scanner = SourceScanner()
+    text = ("a := &tls.Config{CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256}}\n"
+            "b := &tls.Config{CurvePreferences: []tls.CurveID{\n\ttls.X25519MLKEM768,\n\ttls.X25519,\n}}\n"
+            "cfg.CurvePreferences = defaultCurves\n")
+    found, _ = scanner.scan("tls.go", text, {"go", "any"})
+    by_rule = {(f.rule_id, f.location.line): f.severity for f in found}
+    assert by_rule[("GO-TLS-CURVES", 1)] == Severity.CRITICAL          # literal, classical only
+    assert ("GO-TLS-CURVES", 2) not in by_rule                          # multi-line literal containing ML-KEM
+    assert by_rule[("GO-TLS-CURVES-DYNAMIC", 6)] == Severity.LOW        # from a variable: review, not critical
+
+
+def test_openssl_group_list_literal_vs_dynamic():
+    scanner = SourceScanner()
+    text = 'SSL_CTX_set1_groups_list(ctx, "X25519:P-256");\nSSL_CTX_set1_groups_list(ctx, groups);\n'
+    found, _ = scanner.scan("tls.c", text, {"c", "any"})
+    assert {(f.rule_id, f.severity) for f in found} == {("C-TLS-GROUPS", Severity.CRITICAL), ("C-TLS-GROUPS-DYNAMIC", Severity.LOW)}
+
+
+def test_curve_preferences_comparison_is_not_a_finding():
+    scanner = SourceScanner()
+    found, _ = scanner.scan("tls.go", "if cfg.CurvePreferences == nil {\n", {"go", "any"})
+    assert not found
+
+
+def test_trailing_comment_is_not_a_finding_but_strings_with_slashes_are_code():
+    scanner = SourceScanner()
+    text = ('fields := strings.Split(key, " ") // format: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC\n'
+            'u := "https://x.example/" ; k, _ := rsa.GenerateKey(rand.Reader, 2048)\n')
+    found, _ = scanner.scan("ssh_key.go", text, {"go", "any"})
+    assert [(f.rule_id, f.location.line) for f in found] == [("GO-RSA-KEYGEN", 2)]
+
+
+def test_go_ecdh_parsing_is_not_key_exchange():
+    scanner = SourceScanner()
+    text = ("pub, _ := ecdh.P256().NewPublicKey(raw)\n"
+            "priv, _ := ecdh.P256().GenerateKey(rand.Reader)\n"
+            "secret, _ := priv.ECDH(peer)\n")
+    found, _ = scanner.scan("kex.go", text, {"go", "any"})
+    got = {f.location.line: (f.rule_id, f.severity) for f in found}
+    assert got[1] == ("GO-ECDH-KEY", Severity.HIGH)
+    assert got[2] == ("GO-ECDH", Severity.CRITICAL)
+    assert got[3][1] == Severity.CRITICAL
+
+
+def test_ssh_ecdsa_host_key_is_labelled_ecdsa():
+    scanner = SourceScanner()
+    found, _ = scanner.scan("sshd_config", "HostKey /etc/ssh/ssh_host_ecdsa_key\n", {"ssh-config", "any"})
+    assert found[0].algorithm == "ecdsa"
+
+
+@pytest.mark.parametrize("path,kinds,line,rule,algo", [
+    ("auth.rs", {"rust"}, "let rsa_key = Rsa::generate(2048)?;", "RS-OPENSSL-RSA", "rsa"),
+    ("auth.rs", {"rust"}, "const JWT_ALGORITHM: Algorithm = Algorithm::RS256;", "JWT-ALG-RSA", "rsa"),
+    ("two_factor.rs", {"rust"}, "type_: COSEAlgorithm::ES256,", "JWT-ALG-ECDSA", "ecdsa"),
+    ("auth.go", {"go"}, "token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)", "JWT-ALG-RSA", "rsa"),
+    ("Jwt.java", {"jvm"}, "Jwts.builder().signWith(key, SignatureAlgorithm.ES384)", "JWT-ALG-ECDSA", "ecdsa"),
+    ("Tokens.cs", {"csharp"}, "new SigningCredentials(key, SecurityAlgorithms.RsaSha256)", "JWT-ALG-RSA", "rsa"),
+    ("ech.go", {"go"}, "const kemChoice = hpke.KEM_X25519_HKDF_SHA256", "HPKE-DHKEM", "x25519"),
+    ("ohttp.go", {"go"}, "suite := hpke.NewSuite(hpke.KEM_P256_HKDF_SHA256, kdf, aead)", "HPKE-DHKEM", "ecdh"),
+])
+def test_recall_round_2_rules(path, kinds, line, rule, algo):
+    found, _ = SourceScanner().scan(path, line + "\n", kinds | {"any"})
+    assert any(f.rule_id == rule and f.algorithm == algo for f in found), [(f.rule_id, f.algorithm) for f in found]
+
+
+def test_hpke_x25519_is_critical():
+    found, _ = SourceScanner().scan("ech.go", "const k = hpke.KEM_X25519_HKDF_SHA256\n", {"go", "any"})
+    assert found[0].severity == Severity.CRITICAL
+
+
+@pytest.mark.parametrize("path,kinds,line,rule,algo", [
+    ("repo.go", {"go"}, 'e, err := openpgp.NewEntity("", "RPM Registry", "", nil)', "PGP-KEYGEN-GO", "rsa"),
+    ("keys.py", {"python"}, "params = gpg.gen_key_input(name_email='ci@example.com')", "PGP-KEYGEN-PY", "rsa"),
+    ("keys.js", {"javascript"}, "const k = await openpgp.generateKey({ type: 'ecc', curve: 'curve25519' })", "PGP-KEYGEN-JS", "ecc"),
+    ("httpsign.go", {"go"}, "algos = []httpsig.Algorithm{httpsig.ED25519}", "HTTPSIG-ALG", "eddsa"),
+    ("httpsign.go", {"go"}, "algos = []httpsig.Algorithm{httpsig.RSA_SHA256, httpsig.RSA_SHA512}", "HTTPSIG-ALG", "rsa"),
+])
+def test_recall_signing_keys(path, kinds, line, rule, algo):
+    found, _ = SourceScanner().scan(path, line + "\n", kinds | {"any"})
+    assert any(f.rule_id == rule and f.algorithm == algo for f in found), [(f.rule_id, f.algorithm) for f in found]

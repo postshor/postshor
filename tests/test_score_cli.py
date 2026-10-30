@@ -71,3 +71,13 @@ def test_fixture_keys_and_examples_are_capped_but_visible(tmp_path):
     assert found["tests/keys.py"].severity == Severity.LOW and "fixture" in found["tests/keys.py"].details["note"]
     assert found["examples/demo.py"].severity == Severity.LOW
     assert found["app.py"].severity == Severity.HIGH
+
+
+def test_test_directory_detection():
+    from postshor.engine import is_test_path
+
+    assert is_test_path("caddytest/leafcert.pem")
+    assert is_test_path("internal/integrationtests/x.go")
+    assert not is_test_path("latest/release.go")
+    assert not is_test_path("pkg/attest/verify.go")
+    assert not is_test_path("src/app/main.py")

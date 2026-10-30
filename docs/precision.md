@@ -35,3 +35,46 @@ How often is a CRITICAL or HIGH finding a real use of quantum-vulnerable cryptog
 A regression test guards against the opposite error: independent ECDH next to an unrelated ML-KEM mention stays CRITICAL.
 
 **Limitations.** This round measures *precision* only, not recall (findings PostShor misses). The corpus is five cryptography libraries, where nearly every match is real; ordinary applications may show different error patterns. Labelling was done by the PostShor maintainers, not an independent reviewer. Round 2 will add application code and an independent labeller.
+
+## Round 2 · 2026-10-30 · four applications, precision and recall
+
+**Corpus** (default branch, shallow clone):
+
+| Repository | Commit | Language | What it is |
+|---|---|---|---|
+| [netbox-community/netbox](https://github.com/netbox-community/netbox) | `7a68044` | Python | Network source of truth (Django) |
+| [go-gitea/gitea](https://github.com/go-gitea/gitea) | `2660b4d` | Go | Git hosting (SSH, OAuth/OIDC, package registries) |
+| [dani-garcia/vaultwarden](https://github.com/dani-garcia/vaultwarden) | `e056359` | Rust | Password-manager server |
+| [caddyserver/caddy](https://github.com/caddyserver/caddy) | `eb04ed5` | Go | Web server with automatic TLS |
+
+**Precision** was labelled as in round 1. **Recall** was estimated by searching every production code file (tests excluded) for asymmetric-crypto keywords (`rsa`, `ecdsa`, `ed25519`, `x25519`, `ecdh`, `elliptic`, curve names, JWT algorithm names, key-generation calls, …) and reviewing each line PostShor did not report: is it a real use of quantum-vulnerable cryptography?
+
+**Results.**
+
+| | Serious findings | Correct | Precision | Real uses found / known | Recall |
+|---|---|---|---|---|---|
+| PostShor 0.1.1 | 54 | 42 | **77.8%** | 43 / 63 | **68%** |
+| After round-2 fixes | 63 | 63 | **100%** | 63 / 63 | **100%** of known uses |
+
+**Incorrect findings in 0.1.1 and the fixes:**
+
+| Cause | Findings | Fix |
+|---|---|---|
+| Caddy's TLS curve list, set from configuration and including X25519MLKEM768 by default, reported as "classical only" CRITICAL | 3 (+1 in gitea) | Literal curve/group lists are judged across the whole list (CRITICAL if classical only); lists set from a variable become LOW "verify it includes X25519MLKEM768" (Go and OpenSSL rules) |
+| Test certificates and keys in `caddytest/` | 6 | Directories ending in `test`/`tests` count as test code, with an exception list (`latest`, `attest`, `contest`, …) |
+| `ecdh.P256().NewPublicKey(...)` used to convert WebAuthn signature keys reported as key exchange | 1 | crypto/ecdh key generation and `.ECDH()` count as key exchange; parsing keys counts as a (HIGH) elliptic-curve key |
+| Example SSH key in a trailing `// format: ssh-rsa AAAA…` comment | 1 | Matches inside trailing `//` and `#` comments are skipped (quote-aware) |
+
+**Missed uses in 0.1.1 and the new rules:**
+
+| Missed | Where | New rule |
+|---|---|---|
+| Rust `openssl` crate RSA (`Rsa::generate`, `Rsa::private_key_from_pem`) | vaultwarden | `RS-OPENSSL-*` |
+| JWT/COSE algorithms as identifiers (`jwt.SigningMethodRS256`, `Algorithm::RS256`, `COSEAlgorithm::ES256`) | gitea, vaultwarden | `JWT-ALG-RSA/ECDSA/EDDSA` (the Go form requires a package qualifier to avoid flagging the JWT library's own declarations) |
+| OpenPGP package-repository signing keys (`openpgp.NewEntity`, RSA by default, long-lived) | gitea | `PGP-KEYGEN-GO/PY/JS` |
+| HTTP message signatures (`httpsig.RSA_SHA256`, `httpsig.ED25519`, `"rsa-sha256"`) | gitea | `HTTPSIG-ALG` |
+| HPKE with a classical KEM for Encrypted Client Hello (`hpke.KEM_X25519_HKDF_SHA256`) | caddy | `HPKE-DHKEM` (CRITICAL: harvest-now-decrypt-later) |
+
+Round 1's libraries were re-scanned after every change: no regressions (81 serious findings, all correct).
+
+**Limitations.** Recall is measured against the uses a keyword review could find; uses invisible to keyword search (algorithm chosen entirely by configuration at runtime, uses inside compiled dependencies) are outside this estimate. Labelling was still done by the PostShor maintainers. An independent labeller and a larger, randomly sampled corpus are the next step.

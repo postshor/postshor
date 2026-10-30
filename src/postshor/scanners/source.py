@@ -42,9 +42,10 @@ class SourceScanner:
             for m in rule.regex.finditer(text):
                 lineno = bisect.bisect_right(line_starts, m.start())
                 line = lines[lineno - 1]
-                if rule.unless_regex and rule.unless_regex.search(line):
+                if rule.unless_regex and rule.unless_regex.search(m.group(0) if rule.unless_scope == "match" else line):
                     continue
-                if _is_comment(line) or lineno in doc_lines:
+                col = m.start() - line_starts[lineno - 1]
+                if _is_comment(line) or lineno in doc_lines or _in_trailing_comment(line, col, kinds):
                     continue
                 if _suppressed(lines, lineno):
                     suppressed += 1
@@ -58,6 +59,37 @@ class SourceScanner:
         findings = _drop_generic_ecc(list(best.values()))
         _mark_hybrid_components(findings, text, line_starts)
         return sorted(findings, key=lambda f: f.location.line or 0), suppressed
+
+
+_HASH_COMMENT_KINDS = {"python", "ruby", "config", "iac", "ssh-config"}
+
+
+def _in_trailing_comment(line: str, col: int, kinds: set[str]) -> bool:
+    """True if position `col` lies in a comment that starts after code on the same line
+    (`code  // note` or `code  # note`). Quotes are tracked so "http://x" is not a comment."""
+    markers = []
+    if kinds & _C_LIKE:
+        markers.append("//")
+    if kinds & _HASH_COMMENT_KINDS:
+        markers.append("#")
+    if not markers:
+        return False
+    quote = None
+    i = 0
+    while i < col:
+        ch = line[i]
+        if quote:
+            if ch == "\\":
+                i += 2
+                continue
+            if ch == quote:
+                quote = None
+        elif ch in "\"'`":
+            quote = ch
+        elif any(line.startswith(mk, i) for mk in markers):
+            return True
+        i += 1
+    return False
 
 
 _PY_TRIPLE_QUOTED = re.compile(r'("""|\'\'\')(.*?)\1', re.DOTALL)
@@ -91,8 +123,9 @@ _HYBRID_MARKER = re.compile(
     re.IGNORECASE,
 )
 _HYBRID_WINDOW = 40  # lines
-# Configuration checks decide per line whether a PQ group is present; never soften them.
-_PER_LINE_CHECKS = {r.id for r in RULES if r.unless}
+# Configuration checks (rules with an `unless` test or a fixed severity) judge their own match;
+# never soften them because of nearby lines.
+_PER_LINE_CHECKS = {r.id for r in RULES if r.unless or r.severity is not None}
 
 
 def _mark_hybrid_components(findings: list[Finding], text: str, line_starts: list[int]) -> None:
