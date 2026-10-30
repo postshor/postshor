@@ -70,6 +70,7 @@ jobs:
       - uses: postshor/postshor-action@v1
         id: published
         with:
+          path: tests/fixtures/clean_app   # no config file, so only the action's own behaviour is tested
           upload-sarif: "false"
       - name: Check the action produced a score
         env:
@@ -77,4 +78,4 @@ jobs:
           SCORE: ${{ steps.published.outputs.score }}
         run: |
           echo "Released action reported grade $GRADE ($SCORE)"
-          [[ "$GRADE" =~ ^[A-F]$ ]] && [[ "$SCORE" =~ ^[0-9]+$ ]]
+          [ "$GRADE" = "A" ] && [ "$SCORE" = "100" ]

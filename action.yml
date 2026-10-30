@@ -81,5 +81,6 @@ runs:
       env:
         FAIL_ON: ${{ inputs.fail-on }}
       run: |
-        echo "::error::PostShor found findings at or above '$FAIL_ON'. See the job summary and code scanning alerts."
+        if [ -n "$FAIL_ON" ]; then policy="'$FAIL_ON' (fail-on input)"; else policy="the fail_on setting in .postshor.toml"; fi
+        echo "::error::PostShor found findings at or above $policy. See the job summary and code scanning alerts."
         exit 1
