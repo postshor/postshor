@@ -161,3 +161,5 @@ PostShor uses pattern matching and real parsing (certificates, keys, manifests, 
 - [QRS specification](https://github.com/postshor/postshor/blob/main/docs/spec/qrs-v1.md) (CC BY 4.0)
 
 Licensed under the [Apache License 2.0](https://github.com/postshor/postshor/blob/main/LICENSE).
+
+<sub>PostShor is an independent open-source project named after the post-quantum era, not a person. It is not affiliated with or endorsed by Peter Shor.</sub>
