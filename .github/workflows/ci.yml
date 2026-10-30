@@ -65,7 +65,16 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v7
+      # Checks that the released action installs, scans and reports. Policy is enforced by the
+      # dogfood job with the current code; the released version may lag behind it.
       - uses: postshor/postshor-action@v1
+        id: published
         with:
-          fail-on: high
           upload-sarif: "false"
+      - name: Check the action produced a score
+        env:
+          GRADE: ${{ steps.published.outputs.grade }}
+          SCORE: ${{ steps.published.outputs.score }}
+        run: |
+          echo "Released action reported grade $GRADE ($SCORE)"
+          [[ "$GRADE" =~ ^[A-F]$ ]] && [[ "$SCORE" =~ ^[0-9]+$ ]]
