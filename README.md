@@ -106,7 +106,7 @@ Findings appear in GitHub code scanning; the job summary shows the score and mig
 
 ```yaml
 - repo: https://github.com/postshor/postshor
-  rev: v0.1.1
+  rev: v0.2.0
   hooks: [{ id: postshor }]
 ```
 

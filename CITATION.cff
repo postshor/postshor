@@ -4,7 +4,7 @@ title: "PostShor: quantum-readiness scanner and the Quantum Readiness Score (QRS
 type: software
 authors:
   - name: "PostShor contributors"
-version: 0.1.1
+version: 0.2.0
 date-released: 2026-10-30
 license: Apache-2.0
 repository-code: "https://github.com/postshor/postshor"

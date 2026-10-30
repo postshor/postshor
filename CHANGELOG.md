@@ -4,6 +4,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-30
+
 ### Added
 
 - Rules found by the round-2 recall check (`docs/precision.md`): Rust `openssl` crate (`RS-OPENSSL-*`); JWT/COSE algorithm identifiers (`JWT-ALG-*`); OpenPGP key generation (`PGP-KEYGEN-*`); HTTP message signatures (`HTTPSIG-ALG`); HPKE with classical KEMs, e.g. Encrypted Client Hello (`HPKE-DHKEM`); `GO-TLS-CURVES-DYNAMIC`, `C-TLS-GROUPS-DYNAMIC`, `GO-ECDH-KEY`, `GO-ECDH-EXCHANGE`, `GO-X25519-KEY`.
@@ -57,6 +59,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - GitHub Action, pre-commit hook and Dockerfile.
 - SARIF output contains only problems; quantum-safe (INFO) findings stay in the JSON, HTML and CBOM reports.
 
-[Unreleased]: https://github.com/postshor/postshor/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/postshor/postshor/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/postshor/postshor/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/postshor/postshor/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/postshor/postshor/releases/tag/v0.1.0
