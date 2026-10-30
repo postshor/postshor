@@ -78,6 +78,8 @@ runs:
     - name: Enforce policy
       if: ${{ steps.scan.outputs.exit_code != '0' }}
       shell: bash
+      env:
+        FAIL_ON: ${{ inputs.fail-on }}
       run: |
-        echo "::error::PostShor found findings at or above '${{ inputs.fail-on }}'. See the job summary and code scanning alerts."
+        echo "::error::PostShor found findings at or above '$FAIL_ON'. See the job summary and code scanning alerts."
         exit 1

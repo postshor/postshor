@@ -56,3 +56,16 @@ jobs:
       - uses: ./
         with:
           fail-on: high
+
+  published-action:
+    # The Marketplace action (postshor/postshor-action@v1) must keep working against this repository.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: postshor/postshor-action@v1
+        with:
+          fail-on: high
+          upload-sarif: "false"

@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+### Added
+
+- GitHub Marketplace action in its own repository: [postshor/postshor-action](https://github.com/postshor/postshor-action) (`uses: postshor/postshor-action@v1`).
+
+### Security
+
+- The in-repo action no longer interpolates the `fail-on` input directly into a shell command (script-injection hardening).
+
 ## [0.1.0] - 2026-10-17
 
 ### Added

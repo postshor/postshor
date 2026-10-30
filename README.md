@@ -94,12 +94,12 @@ permissions:
   security-events: write
 steps:
   - uses: actions/checkout@v4
-  - uses: postshor/postshor@v0
+  - uses: postshor/postshor-action@v1
     with:
       fail-on: critical      # block new harvest-now-decrypt-later exposure
 ```
 
-Findings appear in GitHub code scanning; the job summary shows the score and migration plan.
+Findings appear in GitHub code scanning; the job summary shows the score and migration plan. See [postshor/postshor-action](https://github.com/postshor/postshor-action) for all inputs; it is also listed on the GitHub Marketplace.
 
 **pre-commit:**
 
