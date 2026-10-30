@@ -1,0 +1,241 @@
+# PostShor rules: Server configuration and infrastructure-as-code
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "CFG-SSH-KEX"
+title = "SSH KexAlgorithms set without a post-quantum hybrid"
+targets = ["ssh-config"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''^\s*KexAlgorithms\s+\S'''
+flags = ["ignorecase"]
+unless = '''mlkem768x25519|sntrup761x25519'''
+
+[rule.tests]
+match = ['''KexAlgorithms curve25519-sha256,ecdh-sha2-nistp256''']
+no_match = ['''KexAlgorithms mlkem768x25519-sha256,curve25519-sha256''']
+
+[[rule]]
+id = "CFG-SSH-RSA-HOSTKEY"
+title = "SSH host key uses RSA/ECDSA"
+targets = ["ssh-config"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''^\s*HostKey\s+\S*(?:rsa|ecdsa)\S*'''
+flags = ["ignorecase"]
+
+[[rule.refine]]
+match = '''ecdsa'''
+algorithm = "ecdsa"
+
+[rule.tests]
+match = [
+  '''HostKey /etc/ssh/ssh_host_rsa_key''',
+  { text = '''HostKey /etc/ssh/ssh_host_ecdsa_key''', algorithm = "ecdsa" },
+]
+no_match = ['''HostKey /etc/ssh/ssh_host_ed25519_key''']
+
+[[rule]]
+id = "CFG-SSH-DSS"
+title = "SSH DSA (ssh-dss) enabled"
+targets = ["ssh-config"]
+algorithm = "dsa"
+usage = "signature"
+pattern = '''\bssh-dss\b'''
+
+[rule.tests]
+match = ['''PubkeyAcceptedAlgorithms +ssh-dss''']
+no_match = ['''PubkeyAcceptedAlgorithms ssh-ed25519''']
+
+[[rule]]
+id = "CFG-NGINX-CURVES"
+title = "nginx ssl_ecdh_curve excludes post-quantum hybrid groups"
+targets = ["config"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''^\s*ssl_ecdh_curve\s+\S'''
+unless = '''mlkem|ml-kem|kyber|sntrup|x25519mlkem|secp256r1mlkem|secp384r1mlkem'''
+
+[rule.tests]
+match = ['''    ssl_ecdh_curve X25519:prime256v1;''']
+no_match = ['''    ssl_ecdh_curve X25519MLKEM768:X25519;''']
+
+[[rule]]
+id = "CFG-APACHE-CURVES"
+title = "Apache TLS groups exclude post-quantum hybrid groups"
+targets = ["config"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''^\s*SSLOpenSSLConfCmd\s+(?:Curves|Groups)\s'''
+unless = '''mlkem|ml-kem|kyber|sntrup|x25519mlkem|secp256r1mlkem|secp384r1mlkem'''
+
+[rule.tests]
+match = ['''SSLOpenSSLConfCmd Curves X25519:secp256r1''']
+no_match = ['''SSLOpenSSLConfCmd Groups X25519MLKEM768:X25519''']
+
+[[rule]]
+id = "CFG-HAPROXY-CURVES"
+title = "HAProxy TLS curves exclude post-quantum hybrid groups"
+targets = ["config"]
+algorithm = "ecdh"
+usage = "key-exchange"
+confidence = "medium"
+pattern = '''^\s*(?:ssl-default-bind-curves|ssl-default-server-curves)\s|\bcurves\s+\S+'''
+unless = '''mlkem|ml-kem|kyber|sntrup|x25519mlkem|secp256r1mlkem|secp384r1mlkem'''
+
+[rule.tests]
+match = ['''    ssl-default-bind-curves X25519:P-256''']
+no_match = ['''    ssl-default-bind-curves X25519MLKEM768:X25519''']
+
+[[rule]]
+id = "CFG-OPENSSL-GROUPS"
+title = "OpenSSL Groups setting excludes post-quantum hybrid groups"
+targets = ["config"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''^\s*Groups\s*='''
+unless = '''mlkem|ml-kem|kyber|sntrup|x25519mlkem|secp256r1mlkem|secp384r1mlkem'''
+
+[rule.tests]
+match = ['''Groups = X25519:secp256r1''']
+no_match = ['''Groups = X25519MLKEM768:X25519''']
+
+[[rule]]
+id = "CFG-TLS-NO13"
+title = "TLS 1.3 not enabled (post-quantum key exchange requires TLS 1.3)"
+targets = ["config"]
+algorithm = "tls-legacy"
+usage = "protocol"
+severity = "critical"
+pattern = '''^\s*(?:ssl_protocols|SSLProtocol)\s+[^#\n]*'''
+unless = '''TLSv1\.3|\ball\b'''
+
+[rule.tests]
+match = ['''    ssl_protocols TLSv1.2;''']
+no_match = ['''    ssl_protocols TLSv1.2 TLSv1.3;''']
+
+[[rule]]
+id = "CFG-TLS-LEGACY"
+title = "Legacy SSL/TLS protocol version enabled"
+targets = ["config"]
+algorithm = "tls-legacy"
+usage = "protocol"
+pattern = '''^\s*(?:ssl_protocols|SSLProtocol|ssl-min-ver)\b[^#\n]*\b(?:SSLv3|TLSv1(?!\.)|TLSv1\.1)\b'''
+unless = '''-TLSv1\b|-TLSv1\.1'''
+
+[rule.tests]
+match = ['''    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;''']
+no_match = ['''    ssl_protocols TLSv1.2 TLSv1.3;''']
+
+[[rule]]
+id = "IAC-TLS-PRIVATE-KEY"
+title = "Terraform tls_private_key with classical algorithm"
+targets = ["iac"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\balgorithm\s*=\s*\"(?:RSA|ECDSA|ED25519)\"'''
+
+[[rule.refine]]
+match = '''ECDSA'''
+algorithm = "ecdsa"
+
+[[rule.refine]]
+match = '''ED25519'''
+algorithm = "eddsa"
+
+[rule.tests]
+match = [
+  '''  algorithm = "RSA"''',
+  { text = '''  algorithm = "ECDSA"''', algorithm = "ecdsa" },
+  { text = '''  algorithm = "ED25519"''', algorithm = "eddsa" },
+]
+no_match = ['''  algorithm = "AES256"''']
+
+[[rule]]
+id = "IAC-KMS-RSA"
+title = "Cloud KMS / ACM RSA key"
+targets = ["iac", "config"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''(?:key_spec|customer_master_key_spec|KeySpec|key_algorithm)\W{1,6}(?:RSA_\d+)'''
+
+[rule.tests]
+match = ['''  customer_master_key_spec = "RSA_4096"''']
+no_match = ['''  customer_master_key_spec = "SYMMETRIC_DEFAULT"''']
+
+[[rule]]
+id = "IAC-KMS-ECC"
+title = "Cloud KMS / ACM elliptic-curve key"
+targets = ["iac", "config"]
+algorithm = "ecc"
+usage = "key-generation"
+pattern = '''(?:key_spec|customer_master_key_spec|KeySpec|key_algorithm)\W{1,6}(?:ECC_\w+|EC_\w+)'''
+
+[rule.tests]
+match = ['''  customer_master_key_spec = "ECC_NIST_P256"''']
+no_match = ['''  customer_master_key_spec = "HMAC_256"''']
+
+[[rule]]
+id = "IAC-GCP-KMS"
+title = "Google Cloud KMS classical key algorithm"
+targets = ["iac", "config"]
+algorithm = "rsa"
+usage = "unknown"
+pattern = '''\b(?:RSA_(?:SIGN|DECRYPT)_\w+|EC_SIGN_\w+)\b'''
+
+[[rule.refine]]
+match = '''^EC_'''
+algorithm = "ecdsa"
+
+[rule.tests]
+match = [
+  { text = '''  algorithm = "EC_SIGN_P256_SHA256"''', algorithm = "ecdsa" },
+  '''  algorithm = "RSA_SIGN_PSS_2048_SHA256"''',
+]
+no_match = ['''  algorithm = "GOOGLE_SYMMETRIC_ENCRYPTION"''']
+
+[[rule]]
+id = "IAC-AZURE-KEY"
+title = "Azure Key Vault classical key"
+targets = ["iac"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bkey_type\s*=\s*\"(?:RSA|RSA-HSM|EC|EC-HSM)\"'''
+
+[[rule.refine]]
+match = '''"EC'''
+algorithm = "ecc"
+
+[rule.tests]
+match = [
+  '''  key_type = "RSA-HSM"''',
+  { text = '''  key_type = "EC"''', algorithm = "ecc" },
+]
+no_match = ['''  key_type = "oct-HSM"''']
+
+[[rule]]
+id = "IAC-CERTMANAGER"
+title = "Certificate private key algorithm (cert-manager style)"
+targets = ["iac", "config"]
+algorithm = "rsa"
+usage = "key-generation"
+confidence = "medium"
+pattern = '''^\s*algorithm\s*:\s*(?:RSA|ECDSA|Ed25519)\s*$'''
+
+[[rule.refine]]
+match = '''ECDSA'''
+algorithm = "ecdsa"
+
+[[rule.refine]]
+match = '''Ed25519'''
+algorithm = "eddsa"
+
+[rule.tests]
+match = [
+  { text = '''    algorithm: ECDSA''', algorithm = "ecdsa" },
+  '''    algorithm: RSA''',
+  { text = '''    algorithm: Ed25519''', algorithm = "eddsa" },
+]
+no_match = ['''    algorithm: ECDSA256-custom''']

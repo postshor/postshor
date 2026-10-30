@@ -1,0 +1,248 @@
+# PostShor rules: C and C++ (OpenSSL, mbedTLS, wolfSSL, libsodium, liboqs)
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "C-RSA-KEYGEN"
+title = "RSA key"
+targets = ["c"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bRSA_generate_key(?:_ex)?\b|\bEVP_PKEY_RSA(?:_PSS)?\b|\bmbedtls_rsa_gen_key\b|\bwc_MakeRsaKey\b'''
+
+[rule.tests]
+match = ['''RSA_generate_key_ex(rsa, 2048, e, NULL);''', '''EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, NULL);''']
+no_match = ['''EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_HMAC, NULL);''']
+
+[[rule]]
+id = "C-RSA-ENC"
+title = "RSA encryption"
+targets = ["c"]
+algorithm = "rsa"
+usage = "encryption"
+pattern = '''\bRSA_(?:public_encrypt|private_decrypt)\b|\bmbedtls_rsa_(?:pkcs1_encrypt|rsaes_oaep_encrypt)\b|\bwc_RsaPublicEncrypt\b'''
+
+[rule.tests]
+match = ['''int n = RSA_public_encrypt(len, in, out, rsa, RSA_PKCS1_OAEP_PADDING);''']
+no_match = ['''int n = RSA_size(rsa);''']
+
+[[rule]]
+id = "C-RSA-SIG"
+title = "RSA signature"
+targets = ["c"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''\bRSA_(?:sign|verify)\b|\bmbedtls_rsa_pkcs1_sign\b|\bwc_RsaSSL_Sign\b'''
+
+[rule.tests]
+match = ['''RSA_sign(NID_sha256, digest, 32, sig, &siglen, rsa);''']
+no_match = ['''RSA_size(rsa);''']
+
+[[rule]]
+id = "C-EC"
+title = "Elliptic-curve key"
+targets = ["c"]
+algorithm = "ecc"
+usage = "key-generation"
+pattern = '''\bEVP_PKEY_EC\b|\bEC_KEY_(?:new_by_curve_name|generate_key)\b|\bwc_ecc_make_key\b'''
+
+[rule.tests]
+match = ['''EC_KEY *k = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);''']
+no_match = ['''EC_POINT_free(p);''']
+
+[[rule]]
+id = "C-ECDSA"
+title = "ECDSA signature"
+targets = ["c"]
+algorithm = "ecdsa"
+usage = "signature"
+pattern = '''\bECDSA_(?:sign|do_sign|verify|do_verify)\b|\bmbedtls_ecdsa_\w+\b|\bwc_ecc_sign_hash\b'''
+
+[rule.tests]
+match = ['''ECDSA_SIG *sig = ECDSA_do_sign(digest, 32, key);''']
+no_match = ['''ECDSA_SIG_free(sig);''']
+
+[[rule]]
+id = "C-ECDH"
+title = "ECDH key agreement"
+targets = ["c"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''\bECDH_compute_key\b|\bmbedtls_ecdh_\w+\b|\bwc_ecc_shared_secret\b'''
+
+[rule.tests]
+match = ['''ECDH_compute_key(secret, len, peer, key, NULL);''']
+no_match = ['''EC_KEY_free(key);''']
+
+[[rule]]
+id = "C-DH"
+title = "Diffie-Hellman"
+targets = ["c"]
+algorithm = "dh"
+usage = "key-exchange"
+pattern = '''\bDH_(?:generate_key|compute_key|new)\b|\bEVP_PKEY_DH\b|\bmbedtls_dhm_\w+\b'''
+
+[rule.tests]
+match = ['''DH *dh = DH_new();''']
+no_match = ['''DH_free(dh);''']
+
+[[rule]]
+id = "C-DSA"
+title = "DSA"
+targets = ["c"]
+algorithm = "dsa"
+usage = "signature"
+pattern = '''\bDSA_(?:generate_parameters(?:_ex)?|generate_key|sign)\b|\bEVP_PKEY_DSA\b'''
+
+[rule.tests]
+match = ['''DSA_generate_key(dsa);''']
+no_match = ['''DSA_free(dsa);''']
+
+[[rule]]
+id = "C-EDDSA"
+title = "EdDSA"
+targets = ["c"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''\bEVP_PKEY_(?:ED25519|ED448)\b|\bcrypto_sign_(?:keypair|detached)\b'''
+
+[rule.tests]
+match = ['''EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, NULL);''', '''crypto_sign_keypair(pk, sk);''']
+no_match = ['''crypto_sign_BYTES;''']
+
+[[rule]]
+id = "C-X25519"
+title = "X25519/X448 key agreement"
+targets = ["c"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''\bEVP_PKEY_(?:X25519|X448)\b|\bcrypto_(?:box|kx|scalarmult)_\w+\b'''
+
+[rule.tests]
+match = ['''EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_X25519, NULL);''', '''crypto_box_keypair(pk, sk);''']
+no_match = ['''crypto_secretbox_easy(c, m, mlen, n, k);''']
+
+[[rule]]
+id = "C-OSSL3-NAMED"
+title = "RSA key (OpenSSL 3 by-name API)"
+targets = ["c"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bEVP_PKEY_(?:CTX_new_from_name|Q_keygen)\s*\([^;]*?\"(?:RSA|RSA-PSS)\"'''
+
+[rule.tests]
+match = ['''EVP_PKEY *k = EVP_PKEY_Q_keygen(NULL, NULL, "RSA", 2048);''']
+no_match = ['''EVP_PKEY *k = EVP_PKEY_Q_keygen(NULL, NULL, "ML-KEM-768");''']
+
+[[rule]]
+id = "C-OSSL3-NAMED-EC"
+title = "EC key (OpenSSL 3 by-name API)"
+targets = ["c"]
+algorithm = "ecc"
+usage = "key-generation"
+pattern = '''\bEVP_PKEY_(?:CTX_new_from_name|Q_keygen)\s*\([^;]*?\"(?:EC|X25519|ED25519)\"'''
+
+[[rule.refine]]
+match = '''"X25519"'''
+algorithm = "x25519"
+
+[[rule.refine]]
+match = '''"ED25519"'''
+algorithm = "eddsa"
+
+[rule.tests]
+match = [
+  { text = '''EVP_PKEY_CTX *c = EVP_PKEY_CTX_new_from_name(NULL, "X25519", NULL);''', algorithm = "x25519" },
+  '''EVP_PKEY *k = EVP_PKEY_Q_keygen(NULL, NULL, "EC", "P-256");''',
+  { text = '''EVP_PKEY *k = EVP_PKEY_Q_keygen(NULL, NULL, "ED25519");''', algorithm = "eddsa" },
+]
+no_match = ['''EVP_PKEY_CTX *c = EVP_PKEY_CTX_new_from_name(NULL, "ML-DSA-65", NULL);''']
+
+[[rule]]
+id = "C-TLS-GROUPS"
+title = "TLS group list set without a post-quantum hybrid group"
+targets = ["c"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''\bSSL_(?:CTX_)?set1_(?:groups|curves)_list\s*\([^,;]*,\s*\"[^\"]*\"'''
+unless = '''mlkem|ml-kem|kyber|sntrup|x25519mlkem|secp256r1mlkem|secp384r1mlkem'''
+unless_scope = "match"
+
+[rule.tests]
+match = ['''SSL_CTX_set1_groups_list(ctx, "X25519:P-256");''']
+no_match = ['''SSL_CTX_set1_groups_list(ctx, "X25519MLKEM768:X25519");''']
+
+[[rule]]
+id = "C-TLS-GROUPS-DYNAMIC"
+title = "TLS group list set from a variable: verify it includes X25519MLKEM768"
+targets = ["c"]
+algorithm = "ecdh"
+usage = "key-exchange"
+confidence = "medium"
+severity = "low"
+pattern = '''\bSSL_(?:CTX_)?set1_(?:groups|curves)_list\s*\([^,;]*,\s*(?!\")\S'''
+
+[rule.tests]
+match = ['''SSL_CTX_set1_groups_list(ctx, groups);''']
+no_match = ['''SSL_CTX_set1_groups_list(ctx, "X25519MLKEM768:X25519");''']
+
+[[rule]]
+id = "C-MD5"
+title = "MD5 hash"
+targets = ["c"]
+algorithm = "md5"
+usage = "hash"
+pattern = '''\bMD5(?:_Init)?\s*\(|\bEVP_md5\s*\('''
+
+[rule.tests]
+match = ['''MD5(data, len, digest);''', '''const EVP_MD *md = EVP_md5();''']
+no_match = ['''const EVP_MD *md = EVP_sha256();''']
+
+[[rule]]
+id = "C-SHA1"
+title = "SHA-1 hash"
+targets = ["c"]
+algorithm = "sha1"
+usage = "hash"
+pattern = '''\bSHA1(?:_Init)?\s*\(|\bEVP_sha1\s*\('''
+
+[rule.tests]
+match = ['''SHA1(data, len, digest);''', '''const EVP_MD *md = EVP_sha1();''']
+no_match = ['''const EVP_MD *md = EVP_sha384();''']
+
+[[rule]]
+id = "C-DES"
+title = "DES / 3DES cipher"
+targets = ["c"]
+algorithm = "des"
+usage = "symmetric"
+pattern = '''\bEVP_des_\w+\s*\(|\bDES_\w+crypt\b'''
+
+[rule.tests]
+match = ['''const EVP_CIPHER *c = EVP_des_ede3_cbc();''']
+no_match = ['''const EVP_CIPHER *c = EVP_aes_256_gcm();''']
+
+[[rule]]
+id = "C-RC4"
+title = "RC4 cipher"
+targets = ["c"]
+algorithm = "rc4"
+usage = "symmetric"
+pattern = '''\bEVP_rc4\w*\s*\(|\bRC4_set_key\b'''
+
+[rule.tests]
+match = ['''const EVP_CIPHER *c = EVP_rc4();''']
+no_match = ['''const EVP_CIPHER *c = EVP_chacha20_poly1305();''']
+
+[[rule]]
+id = "C-LIBOQS"
+title = "liboqs post-quantum usage"
+targets = ["c"]
+algorithm = "pqc"
+usage = "unknown"
+pattern = '''\bOQS_(?:KEM|SIG)_new\s*\('''
+
+[rule.tests]
+match = ['''OQS_KEM *kem = OQS_KEM_new(OQS_KEM_alg_ml_kem_768);''']
+no_match = ['''OQS_KEM_free(kem);''']

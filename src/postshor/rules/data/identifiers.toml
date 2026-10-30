@@ -1,0 +1,147 @@
+# PostShor rules: Algorithm identifiers shared across languages (JWT/JOSE, COSE, HTTP signatures, HPKE)
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "JWT-ALG-RSA"
+title = "JWT/COSE RSA signature algorithm identifier"
+targets = ["python", "javascript", "jvm", "go", "c", "csharp", "rust", "php", "ruby", "swift"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''\b\w+\.SigningMethod(?:RS|PS)(?:256|384|512)\b|\b(?:Signature|JWS|COSE)?Algorithm(?:::|\.)(?:RS|PS)(?:256|384|512)\b|\bSecurityAlgorithms\.Rsa(?:Sha|SsaPssSha)(?:256|384|512)\b'''
+
+[rule.tests]
+match = ['''token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)''', '''const JWT_ALGORITHM: Algorithm = Algorithm::RS256;''']
+no_match = ['''SigningMethodRS256 *SigningMethodRSA''']
+
+[[rule]]
+id = "JWT-ALG-ECDSA"
+title = "JWT/COSE ECDSA signature algorithm identifier"
+targets = ["python", "javascript", "jvm", "go", "c", "csharp", "rust", "php", "ruby", "swift"]
+algorithm = "ecdsa"
+usage = "signature"
+pattern = '''\b\w+\.SigningMethodES(?:256K?|384|512)\b|\b(?:Signature|JWS|COSE)?Algorithm(?:::|\.)ES(?:256K?|384|512)\b|\bSecurityAlgorithms\.EcdsaSha(?:256|384|512)\b'''
+
+[rule.tests]
+match = ['''Jwts.builder().signWith(key, SignatureAlgorithm.ES384)''', '''type_: COSEAlgorithm::ES256,''']
+no_match = ['''SigningMethodES256 = &SigningMethodECDSA{}''']
+
+[[rule]]
+id = "JWT-ALG-EDDSA"
+title = "JWT/COSE EdDSA signature algorithm identifier"
+targets = ["python", "javascript", "jvm", "go", "c", "csharp", "rust", "php", "ruby", "swift"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''\b\w+\.SigningMethodEdDSA\b|\b\w+\.SigningMethodEd25519\b|\b(?:Signature|JWS|COSE)?Algorithm(?:::|\.)(?:EdDSA|Ed25519)\b'''
+
+[rule.tests]
+match = ['''token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)''']
+no_match = ['''type SigningMethodEd25519 struct{}''']
+
+[[rule]]
+id = "HTTPSIG-ALG"
+title = "HTTP message signature algorithm"
+targets = ["python", "javascript", "jvm", "go", "c", "csharp", "rust", "php", "ruby", "swift"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''\bhttpsig\.(?:RSA_SHA\d+|ECDSA_SHA\d+|ED25519)\b|['\"](?:rsa-sha(?:256|512)|rsa-pss-sha512|ecdsa-p(?:256|384)-sha(?:256|384))['\"]'''
+
+[[rule.refine]]
+match = '''ed25519'''
+algorithm = "eddsa"
+
+[[rule.refine]]
+match = '''ecdsa'''
+algorithm = "ecdsa"
+
+[rule.tests]
+match = [
+  '''algos = []httpsig.Algorithm{httpsig.RSA_SHA256}''',
+  '''Algorithms: []string{"rsa-sha256"}''',
+  { text = '''alg := httpsig.ED25519''', algorithm = "eddsa" },
+  { text = '''Algorithms: []string{"ecdsa-p256-sha256"}''', algorithm = "ecdsa" },
+]
+no_match = ['''Algorithms: []string{"hmac-sha256"}''']
+
+[[rule]]
+id = "HPKE-DHKEM"
+title = "HPKE with a classical Diffie-Hellman KEM"
+targets = ["python", "javascript", "jvm", "go", "c", "csharp", "rust", "php", "ruby", "swift"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''\b(?:KEM_(?:X25519|X448|P256|P384|P521)_HKDF_SHA(?:256|384|512)|DHKEM_?(?:X25519|X448|P256|P384|P521)\w*|(?:X25519|X448|DhP256|DhP384|DhP521)HkdfSha(?:256|384|512))\b'''
+
+[[rule.refine]]
+match = '''P(?:256|384|521)'''
+algorithm = "ecdh"
+
+[rule.tests]
+match = [
+  '''const kemChoice = hpke.KEM_X25519_HKDF_SHA256''',
+  { text = '''suite := hpke.NewSuite(hpke.KEM_P256_HKDF_SHA256, kdf, aead)''', algorithm = "ecdh" },
+]
+no_match = ['''suite := hpke.NewSuite(hpke.KEM_X25519_KYBER768_DRAFT00, kdf, aead)''']
+
+[[rule]]
+id = "JOSE-RSA-SIG"
+title = "JWT/JOSE RSA signature algorithm"
+targets = ["python", "javascript", "jvm", "go", "c", "csharp", "rust", "php", "ruby", "swift", "config", "iac"]
+algorithm = "rsa"
+usage = "signature"
+confidence = "medium"
+pattern = '''['\"](?:RS|PS)(?:256|384|512)['\"]'''
+
+[rule.tests]
+match = ['''JWT_ALG = "RS256"''']
+no_match = ['''JWT_ALG = "HS256"''']
+
+[[rule]]
+id = "JOSE-ECDSA-SIG"
+title = "JWT/JOSE ECDSA signature algorithm"
+targets = ["python", "javascript", "jvm", "go", "c", "csharp", "rust", "php", "ruby", "swift", "config", "iac"]
+algorithm = "ecdsa"
+usage = "signature"
+confidence = "medium"
+pattern = '''['\"]ES(?:256K?|384|512)['\"]'''
+
+[rule.tests]
+match = ['''alg = "ES256"''']
+no_match = ['''alg = "HS512"''']
+
+[[rule]]
+id = "JOSE-EDDSA"
+title = "JWT/JOSE EdDSA signature algorithm"
+targets = ["python", "javascript", "jvm", "go", "c", "csharp", "rust", "php", "ruby", "swift", "config", "iac"]
+algorithm = "eddsa"
+usage = "signature"
+confidence = "medium"
+pattern = '''['\"]EdDSA['\"]'''
+
+[rule.tests]
+match = ['''alg = "EdDSA"''']
+no_match = ['''alg = "HS384"''']
+
+[[rule]]
+id = "JOSE-RSA-ENC"
+title = "RSA key encryption (JOSE / WebCrypto)"
+targets = ["python", "javascript", "jvm", "go", "c", "csharp", "rust", "php", "ruby", "swift", "config", "iac"]
+algorithm = "rsa"
+usage = "encryption"
+pattern = '''['\"](?:RSA-OAEP(?:-256|-384|-512)?|RSA1_5)['\"]'''
+
+[rule.tests]
+match = ['''enc_alg = "RSA-OAEP-256"''']
+no_match = ['''enc_alg = "A256KW"''']
+
+[[rule]]
+id = "JOSE-ECDH-ES"
+title = "JWE ECDH-ES key agreement"
+targets = ["python", "javascript", "jvm", "go", "c", "csharp", "rust", "php", "ruby", "swift", "config", "iac"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''['\"]ECDH-ES(?:\+A\d+KW)?['\"]'''
+
+[rule.tests]
+match = ['''enc_alg = "ECDH-ES+A256KW"''']
+no_match = ['''enc_alg = "dir"''']

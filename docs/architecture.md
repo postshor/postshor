@@ -17,7 +17,8 @@ PostShor is a pipeline: **discover → classify → score → report**. Everythi
 |---|---|
 | `models.py` | `Finding`, `Severity`, `Usage`, `Category`, `ScanResult`. A finding's `fingerprint` ignores line numbers so baselines survive edits. |
 | `rules/algorithms.py` | The knowledge base: every algorithm, its quantum status, replacement, CycloneDX primitive and OID. `severity_for(algorithm, usage)` implements QRS section 3. Remediation text and per-language hints live here. |
-| `rules/patterns.py` | All pattern rules. Each rule has a stable public ID, the file kinds it applies to, a regex, the algorithm, the usage, and optionally `unless` (a line-level regex that cancels the match: "this TLS group list has no PQ group"). |
+| `rules/data/*.toml` | All built-in pattern rules, as data in the [Rule Format v1](spec/rule-format-v1.md). Each rule has a stable public ID, the file kinds it applies to, a regex, the algorithm, the usage, its own `match`/`no_match` examples, and optionally `unless` (a regex that cancels the match: "this TLS group list has no PQ group") and `refine` (the matched text decides the algorithm). |
+| `rules/loader.py`, `rules/rule.py`, `rules/testing.py` | Rule-file parsing and validation (every problem reported at once), the `Rule` type, and the example runner behind `postshor rules test`. |
 | `scanners/files.py` | Directory walking, default excludes, file-kind classification, binary detection. |
 | `scanners/source.py` | Runs rules over a file, skips comments, honours `postshor:ignore`, deduplicates per line and algorithm, detects embedded PEM private keys. |
 | `scanners/certificates.py` | Real parsing of certificates and keys; key size, validity versus NIST dates, CA detection, trust-store collapsing. |
@@ -38,15 +39,14 @@ PostShor is a pipeline: **discover → classify → score → report**. Everythi
 
 ## Adding a rule
 
-1. Add a `Rule(...)` to `rules/patterns.py` with a new, never-reused ID (`LANG-WHAT[-DETAIL]`).
-2. Add a positive example to `tests/fixtures/vulnerable_app/` and the rule ID to the parametrised list in `tests/test_source.py`.
-3. If the rule must *not* fire in some common case, add that case too and assert it is not reported.
-4. `python -m pytest`
+1. Add a `[[rule]]` to the matching file in `rules/data/` with a new, never-reused ID (`LANG-WHAT[-DETAIL]`). The format is specified in [rule-format-v1.md](spec/rule-format-v1.md).
+2. Give it `match` examples it must find and `no_match` near-misses it must not (the safe alternative, a look-alike API). Every `refine` entry needs a `match` example that expects its algorithm.
+3. `postshor rules test` runs the examples; `python -m pytest` runs them too, plus the rest of the suite.
+4. For a rule that changes results on real code, re-run the precision corpus (`docs/precision.md`) and record the effect.
 
 ## Known limits and the planned fixes
 
 | Limit | Plan |
 |---|---|
-| Regex cannot follow data flow (an algorithm chosen from a variable) | Tree-sitter based semantic rules (roadmap v0.3) |
-| No binary or container image analysis | OpenSSL/BoringSSL version detection and crypto-constant scanning in images (v0.4) |
-| Rules are Python code | Data-driven rule format (YAML) so the community and other tools can share rules (v0.2) |
+| Regex cannot follow data flow (an algorithm chosen from a variable) | Tree-sitter based semantic rules (roadmap v0.4) |
+| No binary or container image analysis | OpenSSL/BoringSSL version detection and crypto-constant scanning in images (v0.5) |

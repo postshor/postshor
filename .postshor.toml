@@ -1,4 +1,4 @@
 # PostShor configuration for this repository (dogfooding).
-# Test fixtures and sample reports are intentionally vulnerable; the rules file names every algorithm by design.
-exclude = ["tests/fixtures", "docs/examples", "src/postshor/rules/patterns.py"]
+# Test fixtures and sample reports are intentionally vulnerable; the rule data names every algorithm by design.
+exclude = ["tests/fixtures", "docs/examples", "src/postshor/rules/data"]
 fail_on = "high"

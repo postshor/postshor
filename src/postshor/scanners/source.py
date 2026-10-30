@@ -7,8 +7,7 @@ import re
 from pathlib import Path
 
 from postshor.models import Category, Finding, Location, Severity, Usage
-from postshor.rules import RULES, Rule, explain, remediation, severity_for
-from postshor.rules.patterns import algorithm_for_match
+from postshor.rules import RULES, Rule, algorithm_for_match, explain, remediation, severity_for
 
 SUPPRESS_MARKER = "postshor:ignore"
 _COMMENT_PREFIXES = ("#", "//", "/*", "*", "--", ";", "<!--")
@@ -20,7 +19,8 @@ _PRIVATE_KEY = re.compile(
 class SourceScanner:
     def __init__(self, rules: list[Rule] | None = None, disabled: set[str] | None = None):
         disabled = disabled or set()
-        self.rules = [r for r in (rules or RULES) if r.id not in disabled]
+        self.rules = [r for r in (RULES if rules is None else rules) if r.id not in disabled]
+        self._per_line_checks = {r.id for r in self.rules if r.per_line_check}
 
     def scan(self, rel_path: str, text: str, kinds: set[str]) -> tuple[list[Finding], int]:
         """Return (findings, suppressed_count) for one file."""
@@ -53,11 +53,11 @@ class SourceScanner:
                 algo = algorithm_for_match(rule, m)
                 finding = _make_finding(rule, algo, rel_path, lineno, m.start() - line_starts[lineno - 1] + 1, line, language)
                 # Configuration checks each report a distinct problem, so they never merge.
-                key = (lineno, algo, rule.id if rule.unless or rule.severity else "")
+                key = (lineno, algo, rule.id if rule.per_line_check else "")
                 if key not in best or finding.severity > best[key].severity:
                     best[key] = finding
         findings = _drop_generic_ecc(list(best.values()))
-        _mark_hybrid_components(findings, text, line_starts)
+        _mark_hybrid_components(findings, text, line_starts, self._per_line_checks)
         return sorted(findings, key=lambda f: f.location.line or 0), suppressed
 
 
@@ -123,20 +123,19 @@ _HYBRID_MARKER = re.compile(
     re.IGNORECASE,
 )
 _HYBRID_WINDOW = 40  # lines
-# Configuration checks (rules with an `unless` test or a fixed severity) judge their own match;
-# never soften them because of nearby lines.
-_PER_LINE_CHECKS = {r.id for r in RULES if r.unless or r.severity is not None}
 
 
-def _mark_hybrid_components(findings: list[Finding], text: str, line_starts: list[int]) -> None:
+def _mark_hybrid_components(findings: list[Finding], text: str, line_starts: list[int],
+                            per_line_checks: set[str]) -> None:
     """Classical key exchange near an explicitly named hybrid (X25519MLKEM768, mlkem768x25519-sha256,
     X-Wing, ...) is the classical half of that hybrid, which is quantum-safe as a whole.
-    Found on paramiko's kex_mlkem.py during the false-positive review (2026-10-30)."""
+    Found on paramiko's kex_mlkem.py during the false-positive review (2026-10-30).
+    Configuration checks judge their own match and are never softened because of nearby lines."""
     marker_lines = [bisect.bisect_right(line_starts, m.start()) for m in _HYBRID_MARKER.finditer(text)]
     if not marker_lines:
         return
     for f in findings:
-        if f.rule_id in _PER_LINE_CHECKS:
+        if f.rule_id in per_line_checks:
             continue
         if f.algorithm in ("x25519", "ecdh", "dh") and f.usage is Usage.KEY_EXCHANGE and f.location.line:
             nearest = min(abs(f.location.line - m) for m in marker_lines)

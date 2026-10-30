@@ -1,0 +1,76 @@
+# PostShor rules: Ruby
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "RB-RSA"
+title = "RSA (Ruby OpenSSL)"
+targets = ["ruby"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''OpenSSL::PKey::RSA\.(?:new|generate)'''
+
+[rule.tests]
+match = ['''key = OpenSSL::PKey::RSA.new(2048)''']
+no_match = ['''key = OpenSSL::PKey.read(pem)''']
+
+[[rule]]
+id = "RB-EC"
+title = "EC (Ruby OpenSSL)"
+targets = ["ruby"]
+algorithm = "ecc"
+usage = "key-generation"
+pattern = '''OpenSSL::PKey::EC\.(?:new|generate)'''
+
+[rule.tests]
+match = ['''key = OpenSSL::PKey::EC.generate('prime256v1')''']
+no_match = ['''key = OpenSSL::PKey.read(pem)''']
+
+[[rule]]
+id = "RB-DH"
+title = "Diffie-Hellman (Ruby OpenSSL)"
+targets = ["ruby"]
+algorithm = "dh"
+usage = "key-exchange"
+pattern = '''OpenSSL::PKey::DH\b'''
+
+[rule.tests]
+match = ['''dh = OpenSSL::PKey::DH.new(2048)''']
+no_match = ['''key = OpenSSL::PKey.read(pem)''']
+
+[[rule]]
+id = "RB-DSA"
+title = "DSA (Ruby OpenSSL)"
+targets = ["ruby"]
+algorithm = "dsa"
+usage = "signature"
+pattern = '''OpenSSL::PKey::DSA\b'''
+
+[rule.tests]
+match = ['''key = OpenSSL::PKey::DSA.new(2048)''']
+no_match = ['''key = OpenSSL::PKey.read(pem)''']
+
+[[rule]]
+id = "RB-MD5"
+title = "MD5 hash"
+targets = ["ruby"]
+algorithm = "md5"
+usage = "hash"
+pattern = '''\b(?:OpenSSL::)?Digest::MD5\b'''
+
+[rule.tests]
+match = ['''h = Digest::MD5.hexdigest(data)''']
+no_match = ['''h = Digest::SHA256.hexdigest(data)''']
+
+[[rule]]
+id = "RB-SHA1"
+title = "SHA-1 hash"
+targets = ["ruby"]
+algorithm = "sha1"
+usage = "hash"
+pattern = '''\b(?:OpenSSL::)?Digest::SHA1\b'''
+
+[rule.tests]
+match = ['''h = OpenSSL::Digest::SHA1.new''']
+no_match = ['''h = OpenSSL::Digest::SHA384.new''']

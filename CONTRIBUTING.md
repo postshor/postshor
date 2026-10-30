@@ -23,7 +23,7 @@ Requires Python 3.11+. The [architecture guide](docs/architecture.md) explains h
 
 ## Pull requests
 
-- Every rule needs a positive test, and a negative test when the pattern could plausibly over-match.
+- Rules are data in `src/postshor/rules/data/` ([Rule Format v1](docs/spec/rule-format-v1.md)). Every rule needs `match` and `no_match` examples; `postshor rules test` must pass.
 - Rule IDs are public and permanent. Never rename or reuse one; deprecate instead.
 - Cryptographic claims (deadlines, library support, algorithm status) need a source in the PR description.
 - Keep runtime dependencies at one (`cryptography`). Supply-chain hygiene matters for a security tool.

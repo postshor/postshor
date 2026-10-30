@@ -1,0 +1,112 @@
+# PostShor rules: Swift (CryptoKit, Security framework)
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "SW-P-SIGN"
+title = "ECDSA (CryptoKit)"
+targets = ["swift"]
+algorithm = "ecdsa"
+usage = "signature"
+pattern = '''\bP(?:256|384|521)\.Signing\b'''
+
+[rule.tests]
+match = ['''let key = P256.Signing.PrivateKey()''']
+no_match = ['''let key = P256.KeyAgreement.PrivateKey()''']
+
+[[rule]]
+id = "SW-P-KA"
+title = "ECDH (CryptoKit)"
+targets = ["swift"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''\bP(?:256|384|521)\.KeyAgreement\b'''
+
+[rule.tests]
+match = ['''let key = P256.KeyAgreement.PrivateKey()''']
+no_match = ['''let key = P256.Signing.PrivateKey()''']
+
+[[rule]]
+id = "SW-25519-SIGN"
+title = "Ed25519 (CryptoKit)"
+targets = ["swift"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''\bCurve25519\.Signing\b'''
+
+[rule.tests]
+match = ['''let key = Curve25519.Signing.PrivateKey()''']
+no_match = ['''let key = Curve25519.KeyAgreement.PrivateKey()''']
+
+[[rule]]
+id = "SW-25519-KA"
+title = "X25519 (CryptoKit)"
+targets = ["swift"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''\bCurve25519\.KeyAgreement\b'''
+
+[rule.tests]
+match = ['''let key = Curve25519.KeyAgreement.PrivateKey()''']
+no_match = ['''let key = Curve25519.Signing.PrivateKey()''']
+
+[[rule]]
+id = "SW-SECKEY-RSA"
+title = "RSA (Security framework)"
+targets = ["swift"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bkSecAttrKeyTypeRSA\b'''
+
+[rule.tests]
+match = ['''let attrs = [kSecAttrKeyType: kSecAttrKeyTypeRSA]''']
+no_match = ['''let attrs = [kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom]''']
+
+[[rule]]
+id = "SW-SECKEY-EC"
+title = "EC (Security framework)"
+targets = ["swift"]
+algorithm = "ecc"
+usage = "key-generation"
+pattern = '''\bkSecAttrKeyTypeEC(?:SECPrimeRandom)?\b'''
+
+[rule.tests]
+match = ['''let attrs = [kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom]''']
+no_match = ['''let attrs = [kSecAttrKeyType: kSecAttrKeyTypeRSA]''']
+
+[[rule]]
+id = "SW-INSECURE"
+title = "MD5 (CryptoKit Insecure)"
+targets = ["swift"]
+algorithm = "md5"
+usage = "hash"
+pattern = '''\bInsecure\.MD5\b'''
+
+[rule.tests]
+match = ['''let digest = Insecure.MD5.hash(data: data)''']
+no_match = ['''let digest = SHA256.hash(data: data)''']
+
+[[rule]]
+id = "SW-INSECURE-SHA1"
+title = "SHA-1 (CryptoKit Insecure)"
+targets = ["swift"]
+algorithm = "sha1"
+usage = "hash"
+pattern = '''\bInsecure\.SHA1\b'''
+
+[rule.tests]
+match = ['''let digest = Insecure.SHA1.hash(data: data)''']
+no_match = ['''let digest = SHA384.hash(data: data)''']
+
+[[rule]]
+id = "SW-PQC"
+title = "CryptoKit post-quantum API"
+targets = ["swift"]
+algorithm = "pqc"
+usage = "unknown"
+pattern = '''\bML(?:KEM|DSA)\d{2,4}\b'''
+
+[rule.tests]
+match = ['''let key = try MLKEM768.PrivateKey()''', '''let sig = try MLDSA65.PrivateKey()''']
+no_match = ['''let label = "MLKEMish"''']

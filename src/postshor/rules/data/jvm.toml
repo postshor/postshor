@@ -1,0 +1,232 @@
+# PostShor rules: Java, Kotlin, Scala and Groovy (JCA)
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "JVM-RSA-KEYGEN"
+title = "RSA key pair generation (JCA)"
+targets = ["jvm"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''KeyPairGenerator\.getInstance\(\s*\"RSA'''
+
+[rule.tests]
+match = ['''KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");''']
+no_match = ['''KeyPairGenerator kpg = KeyPairGenerator.getInstance("ML-KEM-768");''']
+
+[[rule]]
+id = "JVM-EC-KEYGEN"
+title = "EC key pair generation (JCA)"
+targets = ["jvm"]
+algorithm = "ecc"
+usage = "key-generation"
+pattern = '''KeyPairGenerator\.getInstance\(\s*\"(?:EC|ECDSA)\"'''
+
+[rule.tests]
+match = ['''KeyPairGenerator.getInstance("EC")''']
+no_match = ['''KeyPairGenerator.getInstance("ECDH-like")''']
+
+[[rule]]
+id = "JVM-DSA-KEYGEN"
+title = "DSA key pair generation (JCA)"
+targets = ["jvm"]
+algorithm = "dsa"
+usage = "signature"
+pattern = '''KeyPairGenerator\.getInstance\(\s*\"DSA\"'''
+
+[rule.tests]
+match = ['''KeyPairGenerator.getInstance("DSA")''']
+no_match = ['''KeyPairGenerator.getInstance("ML-DSA-65")''']
+
+[[rule]]
+id = "JVM-DH-KEYGEN"
+title = "Diffie-Hellman (JCA)"
+targets = ["jvm"]
+algorithm = "dh"
+usage = "key-exchange"
+pattern = '''(?:KeyPairGenerator|KeyAgreement)\.getInstance\(\s*\"(?:DH|DiffieHellman)\"'''
+
+[rule.tests]
+match = ['''KeyAgreement ka = KeyAgreement.getInstance("DH");''']
+no_match = ['''KeyAgreement ka = KeyAgreement.getInstance("ECDH");''']
+
+[[rule]]
+id = "JVM-EDDSA"
+title = "EdDSA (JCA)"
+targets = ["jvm"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''(?:KeyPairGenerator|Signature)\.getInstance\(\s*\"(?:Ed25519|Ed448|EdDSA)\"'''
+
+[rule.tests]
+match = ['''Signature.getInstance("Ed25519")''']
+no_match = ['''Signature.getInstance("ML-DSA")''']
+
+[[rule]]
+id = "JVM-XDH"
+title = "X25519/X448 key agreement (JCA)"
+targets = ["jvm"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''(?:KeyPairGenerator|KeyAgreement)\.getInstance\(\s*\"(?:X25519|X448|XDH)\"'''
+
+[rule.tests]
+match = ['''KeyAgreement.getInstance("X25519")''']
+no_match = ['''KeyAgreement.getInstance("ECDH")''']
+
+[[rule]]
+id = "JVM-ECDH"
+title = "ECDH key agreement (JCA)"
+targets = ["jvm"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''KeyAgreement\.getInstance\(\s*\"(?:ECDH|ECDHC|ECMQV)\"'''
+
+[rule.tests]
+match = ['''KeyAgreement.getInstance("ECDH")''']
+no_match = ['''KeyAgreement.getInstance("X25519")''']
+
+[[rule]]
+id = "JVM-RSA-CIPHER"
+title = "RSA encryption (JCA Cipher)"
+targets = ["jvm"]
+algorithm = "rsa"
+usage = "encryption"
+pattern = '''Cipher\.getInstance\(\s*\"RSA'''
+
+[rule.tests]
+match = ['''Cipher c = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");''']
+no_match = ['''Cipher c = Cipher.getInstance("AES/GCM/NoPadding");''']
+
+[[rule]]
+id = "JVM-RSA-SIG"
+title = "RSA signature (JCA)"
+targets = ["jvm"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''Signature\.getInstance\(\s*\"(?:\w*with(?:RSA|RSA/PSS|RSAandMGF1)|RSASSA-PSS)\"'''
+
+[rule.tests]
+match = ['''Signature.getInstance("SHA256withRSA")''', '''Signature.getInstance("RSASSA-PSS")''']
+no_match = ['''Signature.getInstance("SHA256withECDSA")''']
+
+[[rule]]
+id = "JVM-ECDSA-SIG"
+title = "ECDSA signature (JCA)"
+targets = ["jvm"]
+algorithm = "ecdsa"
+usage = "signature"
+pattern = '''Signature\.getInstance\(\s*\"\w*withECDSA\"'''
+
+[rule.tests]
+match = ['''Signature.getInstance("SHA384withECDSA")''']
+no_match = ['''Signature.getInstance("SHA384withRSA")''']
+
+[[rule]]
+id = "JVM-DSA-SIG"
+title = "DSA signature (JCA)"
+targets = ["jvm"]
+algorithm = "dsa"
+usage = "signature"
+pattern = '''Signature\.getInstance\(\s*\"\w*withDSA\"'''
+
+[rule.tests]
+match = ['''Signature.getInstance("SHA256withDSA")''']
+no_match = ['''Signature.getInstance("SHA256withECDSA")''']
+
+[[rule]]
+id = "JVM-RSA-KEYFACTORY"
+title = "RSA key loading (JCA)"
+targets = ["jvm"]
+algorithm = "rsa"
+usage = "unknown"
+pattern = '''KeyFactory\.getInstance\(\s*\"RSA\"'''
+
+[rule.tests]
+match = ['''KeyFactory.getInstance("RSA")''']
+no_match = ['''KeyFactory.getInstance("EC")''']
+
+[[rule]]
+id = "JVM-EC-KEYFACTORY"
+title = "EC key loading (JCA)"
+targets = ["jvm"]
+algorithm = "ecc"
+usage = "unknown"
+pattern = '''KeyFactory\.getInstance\(\s*\"EC\"'''
+
+[rule.tests]
+match = ['''KeyFactory.getInstance("EC")''']
+no_match = ['''KeyFactory.getInstance("RSA")''']
+
+[[rule]]
+id = "JVM-DES"
+title = "DES / 3DES cipher (JCA)"
+targets = ["jvm"]
+algorithm = "des"
+usage = "symmetric"
+pattern = '''Cipher\.getInstance\(\s*\"(?:DES|DESede|TripleDES)'''
+
+[rule.tests]
+match = ['''Cipher.getInstance("DESede/CBC/PKCS5Padding")''']
+no_match = ['''Cipher.getInstance("AES/CBC/PKCS5Padding")''']
+
+[[rule]]
+id = "JVM-RC4"
+title = "RC4 cipher (JCA)"
+targets = ["jvm"]
+algorithm = "rc4"
+usage = "symmetric"
+pattern = '''Cipher\.getInstance\(\s*\"(?:RC4|ARCFOUR)'''
+
+[rule.tests]
+match = ['''Cipher.getInstance("RC4")''']
+no_match = ['''Cipher.getInstance("ChaCha20-Poly1305")''']
+
+[[rule]]
+id = "JVM-MD5"
+title = "MD5 hash (JCA)"
+targets = ["jvm"]
+algorithm = "md5"
+usage = "hash"
+pattern = '''MessageDigest\.getInstance\(\s*\"MD5\"'''
+
+[rule.tests]
+match = ['''MessageDigest.getInstance("MD5")''']
+no_match = ['''MessageDigest.getInstance("SHA-256")''']
+
+[[rule]]
+id = "JVM-SHA1"
+title = "SHA-1 hash (JCA)"
+targets = ["jvm"]
+algorithm = "sha1"
+usage = "hash"
+pattern = '''MessageDigest\.getInstance\(\s*\"SHA-?1\"'''
+
+[rule.tests]
+match = ['''MessageDigest.getInstance("SHA-1")''', '''MessageDigest.getInstance("SHA1")''']
+no_match = ['''MessageDigest.getInstance("SHA-512")''']
+
+[[rule]]
+id = "JVM-BC-PQC"
+title = "Bouncy Castle post-quantum API"
+targets = ["jvm"]
+algorithm = "pqc"
+usage = "unknown"
+pattern = '''\b(?:MLKEM|MLDSA|SLHDSA)(?:ParameterSpec|Parameters|KeyGenerationParameters)\b'''
+
+[rule.tests]
+match = ['''MLKEMParameterSpec spec = MLKEMParameterSpec.ml_kem_768;''']
+no_match = ['''RSAKeyGenParameterSpec spec = new RSAKeyGenParameterSpec(2048, F4);''']
+
+[[rule]]
+id = "JVM-BC-PRESTANDARD"
+title = "Bouncy Castle pre-standard PQC API"
+targets = ["jvm"]
+algorithm = "kyber"
+usage = "unknown"
+pattern = '''\b(?:Kyber|Dilithium|SPHINCSPlus|Falcon)(?:ParameterSpec|Parameters)\b'''
+
+[rule.tests]
+match = ['''KyberParameterSpec spec = KyberParameterSpec.kyber768;''']
+no_match = ['''MLKEMParameterSpec spec = MLKEMParameterSpec.ml_kem_768;''']

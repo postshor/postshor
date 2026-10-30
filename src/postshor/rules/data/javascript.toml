@@ -1,0 +1,311 @@
+# PostShor rules: JavaScript and TypeScript
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "JS-RSA-KEYGEN"
+title = "RSA key generation (node:crypto)"
+targets = ["javascript"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''generateKeyPair(?:Sync)?\(\s*['\"](?:rsa|rsa-pss)['\"]'''
+
+[rule.tests]
+match = ['''generateKeyPairSync('rsa', { modulusLength: 2048 })''']
+no_match = ['''generateKeyPairSync('ec', { namedCurve: 'P-256' })''']
+
+[[rule]]
+id = "JS-EC-KEYGEN"
+title = "EC key generation (node:crypto)"
+targets = ["javascript"]
+algorithm = "ecc"
+usage = "key-generation"
+pattern = '''generateKeyPair(?:Sync)?\(\s*['\"]ec['\"]'''
+
+[rule.tests]
+match = ['''generateKeyPair('ec', { namedCurve: 'P-256' }, cb)''']
+no_match = ['''generateKeyPair('ed25519', {}, cb)''']
+
+[[rule]]
+id = "JS-EDDSA-KEYGEN"
+title = "EdDSA key generation (node:crypto)"
+targets = ["javascript"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''generateKeyPair(?:Sync)?\(\s*['\"](?:ed25519|ed448)['\"]'''
+
+[rule.tests]
+match = ['''generateKeyPairSync('ed25519')''']
+no_match = ['''generateKeyPairSync('x25519')''']
+
+[[rule]]
+id = "JS-X25519-KEYGEN"
+title = "X25519 key generation (node:crypto)"
+targets = ["javascript"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''generateKeyPair(?:Sync)?\(\s*['\"](?:x25519|x448)['\"]'''
+
+[rule.tests]
+match = ['''generateKeyPairSync('x25519')''']
+no_match = ['''generateKeyPairSync('ed25519')''']
+
+[[rule]]
+id = "JS-DSA-KEYGEN"
+title = "DSA key generation (node:crypto)"
+targets = ["javascript"]
+algorithm = "dsa"
+usage = "signature"
+pattern = '''generateKeyPair(?:Sync)?\(\s*['\"]dsa['\"]'''
+
+[rule.tests]
+match = ['''generateKeyPairSync('dsa', { modulusLength: 2048 })''']
+no_match = ['''generateKeyPairSync('dh', { group: 'modp14' })''']
+
+[[rule]]
+id = "JS-DH"
+title = "Diffie-Hellman (node:crypto)"
+targets = ["javascript"]
+algorithm = "dh"
+usage = "key-exchange"
+pattern = '''\b(?:createDiffieHellman(?:Group)?|getDiffieHellman)\(|generateKeyPair(?:Sync)?\(\s*['\"]dh['\"]'''
+
+[rule.tests]
+match = ['''const dh = crypto.createDiffieHellman(2048);''', '''generateKeyPairSync('dh', { group: 'modp14' })''']
+no_match = ['''const ecdh = crypto.createECDH('prime256v1');''']
+
+[[rule]]
+id = "JS-ECDH"
+title = "ECDH (node:crypto)"
+targets = ["javascript"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''\bcreateECDH\('''
+
+[rule.tests]
+match = ['''const ecdh = crypto.createECDH('prime256v1');''']
+no_match = ['''const dh = crypto.createDiffieHellman(2048);''']
+
+[[rule]]
+id = "JS-RSA-ENC"
+title = "RSA encryption (node:crypto)"
+targets = ["javascript"]
+algorithm = "rsa"
+usage = "encryption"
+pattern = '''\b(?:publicEncrypt|privateDecrypt)\('''
+
+[rule.tests]
+match = ['''const sealed = crypto.publicEncrypt(publicKey, data);''']
+no_match = ['''const sealed = crypto.createCipheriv('aes-256-gcm', key, iv);''']
+
+[[rule]]
+id = "JS-WEBCRYPTO-RSA-SIG"
+title = "RSA signature (WebCrypto)"
+targets = ["javascript"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''['\"](?:RSASSA-PKCS1-v1_5|RSA-PSS)['\"]'''
+
+[rule.tests]
+match = ['''await crypto.subtle.sign({ name: 'RSA-PSS', saltLength: 32 }, key, data)''']
+no_match = ['''await crypto.subtle.sign({ name: 'HMAC' }, key, data)''']
+
+[[rule]]
+id = "JS-WEBCRYPTO-ECDSA"
+title = "ECDSA (WebCrypto)"
+targets = ["javascript"]
+algorithm = "ecdsa"
+usage = "signature"
+pattern = '''name\s*:\s*['\"]ECDSA['\"]'''
+
+[rule.tests]
+match = ['''await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign'])''']
+no_match = ['''await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey'])''']
+
+[[rule]]
+id = "JS-WEBCRYPTO-ECDH"
+title = "ECDH (WebCrypto)"
+targets = ["javascript"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''name\s*:\s*['\"]ECDH['\"]'''
+
+[rule.tests]
+match = ['''await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, true, ['deriveKey'])''']
+no_match = ['''await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign'])''']
+
+[[rule]]
+id = "JS-WEBCRYPTO-X25519"
+title = "X25519 (WebCrypto)"
+targets = ["javascript"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''name\s*:\s*['\"]X25519['\"]'''
+
+[rule.tests]
+match = ['''await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits'])''']
+no_match = ['''await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign'])''']
+
+[[rule]]
+id = "JS-WEBCRYPTO-ED25519"
+title = "Ed25519 (WebCrypto)"
+targets = ["javascript"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''name\s*:\s*['\"]Ed25519['\"]'''
+
+[rule.tests]
+match = ['''await crypto.subtle.generateKey({ name: 'Ed25519' }, true, ['sign'])''']
+no_match = ['''await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits'])''']
+
+[[rule]]
+id = "JS-FORGE-RSA"
+title = "RSA via node-forge"
+targets = ["javascript"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bpki\.rsa\.generateKeyPair\(|\bpki\.(?:publicKeyFromPem|privateKeyFromPem)\('''
+
+[rule.tests]
+match = ['''const keys = forge.pki.rsa.generateKeyPair(2048);''', '''const key = forge.pki.privateKeyFromPem(pem);''']
+no_match = ['''const cert = forge.pki.certificateFromPem(pem);''']
+
+[[rule]]
+id = "JS-NODERSA"
+title = "RSA via node-rsa"
+targets = ["javascript"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bnew\s+NodeRSA\('''
+
+[rule.tests]
+match = ['''const key = new NodeRSA({ b: 2048 });''']
+no_match = ['''const key = new NodeAES(secret);''']
+
+[[rule]]
+id = "JS-ELLIPTIC"
+title = "Elliptic curve via elliptic"
+targets = ["javascript"]
+algorithm = "ecc"
+usage = "unknown"
+pattern = '''\bnew\s+(?:EC|ec|EdDSA)\(\s*['\"](?:secp256k1|p256|p384|p521|curve25519|ed25519)['\"]'''
+
+[rule.tests]
+match = ['''const ec = new EC('secp256k1');''']
+no_match = ['''const ec = new EC(customCurve);''']
+
+[[rule]]
+id = "JS-NACL-BOX"
+title = "X25519 box (tweetnacl)"
+targets = ["javascript"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''\bnacl\.box\b'''
+
+[rule.tests]
+match = ['''const sealed = nacl.box(msg, nonce, theirPk, mySk);''']
+no_match = ['''const sealed = nacl.secretbox(msg, nonce, key);''']
+
+[[rule]]
+id = "JS-NACL-SIGN"
+title = "Ed25519 signature (tweetnacl)"
+targets = ["javascript"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''\bnacl\.sign\b'''
+
+[rule.tests]
+match = ['''const signed = nacl.sign(msg, secretKey);''']
+no_match = ['''const hash = nacl.hash(msg);''']
+
+[[rule]]
+id = "JS-NOBLE-CURVES"
+title = "Elliptic curve via @noble/curves"
+targets = ["javascript"]
+algorithm = "ecc"
+usage = "unknown"
+pattern = '''@noble/curves/(?:secp256k1|p256|p384|p521|nist|ed25519|ed448)'''
+
+[rule.tests]
+match = ['''import { secp256k1 } from '@noble/curves/secp256k1';''']
+no_match = ['''import { ml_kem768 } from '@noble/post-quantum/ml-kem';''']
+
+[[rule]]
+id = "JS-NOBLE-PQ"
+title = "@noble/post-quantum usage"
+targets = ["javascript"]
+algorithm = "pqc"
+usage = "unknown"
+pattern = '''@noble/post-quantum'''
+
+[rule.tests]
+match = ['''import { ml_kem768 } from '@noble/post-quantum/ml-kem';''']
+no_match = ['''import { secp256k1 } from '@noble/curves/secp256k1';''']
+
+[[rule]]
+id = "JS-MD5"
+title = "MD5 hash"
+targets = ["javascript"]
+algorithm = "md5"
+usage = "hash"
+pattern = '''createHash\(\s*['\"]md5['\"]|\bCryptoJS\.MD5\b'''
+
+[rule.tests]
+match = ['''const h = crypto.createHash('md5').update(x).digest('hex');''', '''const h = CryptoJS.MD5(x);''']
+no_match = ['''const h = crypto.createHash('sha256').update(x).digest('hex');''']
+
+[[rule]]
+id = "JS-SHA1"
+title = "SHA-1 hash"
+targets = ["javascript"]
+algorithm = "sha1"
+usage = "hash"
+pattern = '''createHash\(\s*['\"]sha1['\"]|\bCryptoJS\.SHA1\b'''
+
+[rule.tests]
+match = ['''const h = crypto.createHash('sha1').update(x).digest('hex');''']
+no_match = ['''const h = crypto.createHash('sha512').update(x).digest('hex');''']
+
+[[rule]]
+id = "JS-DES"
+title = "DES / 3DES cipher"
+targets = ["javascript"]
+algorithm = "des"
+usage = "symmetric"
+pattern = '''createCipheriv\(\s*['\"](?:des|des-ede3|des3|des-ede)[\w-]*['\"]|\bCryptoJS\.(?:DES|TripleDES)\b'''
+
+[rule.tests]
+match = ['''const c = crypto.createCipheriv('des-ede3-cbc', key, iv);''', '''const ct = CryptoJS.TripleDES.encrypt(msg, key);''']
+no_match = ['''const c = crypto.createCipheriv('aes-256-gcm', key, iv);''']
+
+[[rule]]
+id = "JS-RC4"
+title = "RC4 cipher"
+targets = ["javascript"]
+algorithm = "rc4"
+usage = "symmetric"
+pattern = '''createCipheriv\(\s*['\"]rc4[\w-]*['\"]|\bCryptoJS\.RC4\b'''
+
+[rule.tests]
+match = ['''const c = crypto.createCipheriv('rc4', key, null);''']
+no_match = ['''const c = crypto.createCipheriv('chacha20-poly1305', key, iv);''']
+
+[[rule]]
+id = "PGP-KEYGEN-JS"
+title = "OpenPGP.js key generation"
+targets = ["javascript"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''\bgenerateKey\s*\(\s*\{[^}]*\btype\s*:\s*['\"](?:rsa|ecc)['\"]'''
+
+[[rule.refine]]
+match = '''['"]ecc['"]'''
+algorithm = "ecc"
+
+[rule.tests]
+match = [
+  { text = '''const k = await openpgp.generateKey({ type: 'ecc', curve: 'curve25519' })''', algorithm = "ecc" },
+  '''const k = await openpgp.generateKey({ type: 'rsa', rsaBits: 4096 })''',
+]
+no_match = ['''const k = await openpgp.readKey({ armoredKey })''']

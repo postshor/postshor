@@ -1,0 +1,124 @@
+# PostShor rules: C# and .NET
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "CS-RSA"
+title = "RSA (.NET)"
+targets = ["csharp"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bRSA\.Create\(|\bnew\s+RSA(?:CryptoServiceProvider|Cng|OpenSsl)\('''
+
+[rule.tests]
+match = ['''using var rsa = RSA.Create(2048);''']
+no_match = ['''using var aes = Aes.Create();''']
+
+[[rule]]
+id = "CS-RSA-ENC"
+title = "RSA encryption (.NET)"
+targets = ["csharp"]
+algorithm = "rsa"
+usage = "encryption"
+pattern = '''\bRSAEncryptionPadding\.'''
+
+[rule.tests]
+match = ['''var ct = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA256);''']
+no_match = ['''var sig = rsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);''']
+
+[[rule]]
+id = "CS-RSA-SIG"
+title = "RSA signature (.NET)"
+targets = ["csharp"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''\bRSASignaturePadding\.'''
+
+[rule.tests]
+match = ['''var sig = rsa.SignData(data, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);''']
+no_match = ['''var ct = rsa.Encrypt(data, RSAEncryptionPadding.OaepSHA256);''']
+
+[[rule]]
+id = "CS-ECDSA"
+title = "ECDSA (.NET)"
+targets = ["csharp"]
+algorithm = "ecdsa"
+usage = "signature"
+pattern = '''\bECDsa\.Create\(|\bnew\s+ECDsa(?:Cng|OpenSsl)\('''
+
+[rule.tests]
+match = ['''using var ecdsa = ECDsa.Create(ECCurve.NamedCurves.nistP256);''']
+no_match = ['''using var ecdh = ECDiffieHellman.Create();''']
+
+[[rule]]
+id = "CS-ECDH"
+title = "ECDH (.NET)"
+targets = ["csharp"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''\bECDiffieHellman\.Create\(|\bnew\s+ECDiffieHellman(?:Cng|OpenSsl)\('''
+
+[rule.tests]
+match = ['''using var ecdh = ECDiffieHellman.Create();''']
+no_match = ['''using var ecdsa = ECDsa.Create();''']
+
+[[rule]]
+id = "CS-DSA"
+title = "DSA (.NET)"
+targets = ["csharp"]
+algorithm = "dsa"
+usage = "signature"
+pattern = '''\bDSA\.Create\(|\bDSACryptoServiceProvider\b'''
+
+[rule.tests]
+match = ['''using var dsa = DSA.Create();''']
+no_match = ['''using var mldsa = MLDsa.GenerateKey(MLDsaAlgorithm.MLDsa65);''']
+
+[[rule]]
+id = "CS-MD5"
+title = "MD5 (.NET)"
+targets = ["csharp"]
+algorithm = "md5"
+usage = "hash"
+pattern = '''\bMD5\.(?:Create|HashData)\(|\bMD5CryptoServiceProvider\b'''
+
+[rule.tests]
+match = ['''using var md5 = MD5.Create();''']
+no_match = ['''using var sha = SHA256.Create();''']
+
+[[rule]]
+id = "CS-SHA1"
+title = "SHA-1 (.NET)"
+targets = ["csharp"]
+algorithm = "sha1"
+usage = "hash"
+pattern = '''\bSHA1\.(?:Create|HashData)\(|\bSHA1(?:Managed|CryptoServiceProvider)\b'''
+
+[rule.tests]
+match = ['''var h = SHA1.HashData(data);''']
+no_match = ['''var h = SHA384.HashData(data);''']
+
+[[rule]]
+id = "CS-DES"
+title = "DES / 3DES / RC2 (.NET)"
+targets = ["csharp"]
+algorithm = "des"
+usage = "symmetric"
+pattern = '''\b(?:DES|TripleDES|RC2)\.Create\(|\b(?:DES|TripleDES|RC2)CryptoServiceProvider\b'''
+
+[rule.tests]
+match = ['''using var des = TripleDES.Create();''']
+no_match = ['''using var aes = Aes.Create();''']
+
+[[rule]]
+id = "CS-PQC"
+title = ".NET post-quantum API"
+targets = ["csharp"]
+algorithm = "pqc"
+usage = "unknown"
+pattern = '''\b(?:MLKem|MLDsa|SlhDsa)\.(?:GenerateKey|Import\w*)\('''
+
+[rule.tests]
+match = ['''using var kem = MLKem.GenerateKey(MLKemAlgorithm.MLKem768);''']
+no_match = ['''using var rsa = RSA.Create(2048);''']

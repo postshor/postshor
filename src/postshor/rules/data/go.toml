@@ -1,0 +1,266 @@
+# PostShor rules: Go
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "GO-RSA-KEYGEN"
+title = "RSA key generation"
+targets = ["go"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\brsa\.GenerateKey\('''
+
+[rule.tests]
+match = ['''k, err := rsa.GenerateKey(rand.Reader, 2048)''']
+no_match = ['''k, err := ecdsa.GenerateKey(curve, rand.Reader)''']
+
+[[rule]]
+id = "GO-RSA-ENC"
+title = "RSA encryption"
+targets = ["go"]
+algorithm = "rsa"
+usage = "encryption"
+pattern = '''\brsa\.(?:EncryptOAEP|EncryptPKCS1v15|DecryptOAEP|DecryptPKCS1v15)\('''
+
+[rule.tests]
+match = ['''ct, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, pub, msg, nil)''']
+no_match = ['''sig, err := rsa.SignPSS(rand.Reader, priv, h, d, nil)''']
+
+[[rule]]
+id = "GO-RSA-SIG"
+title = "RSA signature"
+targets = ["go"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''\brsa\.(?:SignPKCS1v15|SignPSS|VerifyPKCS1v15|VerifyPSS)\('''
+
+[rule.tests]
+match = ['''err := rsa.VerifyPKCS1v15(pub, crypto.SHA256, digest, sig)''']
+no_match = ['''ct, err := rsa.EncryptOAEP(h, rand.Reader, pub, m, nil)''']
+
+[[rule]]
+id = "GO-ECDSA"
+title = "ECDSA"
+targets = ["go"]
+algorithm = "ecdsa"
+usage = "signature"
+pattern = '''\becdsa\.(?:GenerateKey|Sign|SignASN1|Verify|VerifyASN1)\('''
+
+[rule.tests]
+match = ['''k, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)''', '''ok := ecdsa.VerifyASN1(pub, digest, sig)''']
+no_match = ['''k, err := ed25519.GenerateKey(rand.Reader)''']
+
+[[rule]]
+id = "GO-ECDH"
+title = "ECDH key agreement"
+targets = ["go"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''\becdh\.(?:P256|P384|P521)\(\)\.GenerateKey\('''
+
+[rule.tests]
+match = ['''priv, err := ecdh.P256().GenerateKey(rand.Reader)''']
+no_match = ['''pub, err := ecdh.P256().NewPublicKey(raw)''']
+
+[[rule]]
+id = "GO-ECDH-KEY"
+title = "Elliptic-curve key (crypto/ecdh)"
+targets = ["go"]
+algorithm = "ecc"
+usage = "unknown"
+pattern = '''\becdh\.(?:P256|P384|P521)\(\)\.New(?:Public|Private)Key\('''
+
+[rule.tests]
+match = ['''pub, err := ecdh.P256().NewPublicKey(raw)''']
+no_match = ['''priv, err := ecdh.P256().GenerateKey(rand.Reader)''']
+
+[[rule]]
+id = "GO-ECDH-EXCHANGE"
+title = "ECDH shared-secret computation"
+targets = ["go"]
+algorithm = "ecdh"
+usage = "key-exchange"
+confidence = "medium"
+pattern = '''\.ECDH\(\s*\w'''
+
+[rule.tests]
+match = ['''secret, err := priv.ECDH(peer)''']
+no_match = ['''e, err := key.ECDH()''']
+
+[[rule]]
+id = "GO-X25519"
+title = "X25519 key agreement"
+targets = ["go"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''\becdh\.X25519\(\)\.GenerateKey\(|\bcurve25519\.(?:X25519|ScalarMult)\('''
+
+[rule.tests]
+match = ['''priv, err := ecdh.X25519().GenerateKey(rand.Reader)''', '''out, err := curve25519.X25519(scalar, point)''']
+no_match = ['''pub, err := ecdh.X25519().NewPublicKey(raw)''']
+
+[[rule]]
+id = "GO-X25519-KEY"
+title = "X25519 key (crypto/ecdh)"
+targets = ["go"]
+algorithm = "x25519"
+usage = "unknown"
+pattern = '''\becdh\.X25519\(\)\.New(?:Public|Private)Key\('''
+
+[rule.tests]
+match = ['''pub, err := ecdh.X25519().NewPublicKey(raw)''']
+no_match = ['''priv, err := ecdh.X25519().GenerateKey(rand.Reader)''']
+
+[[rule]]
+id = "GO-ELLIPTIC"
+title = "Elliptic curve (crypto/elliptic)"
+targets = ["go"]
+algorithm = "ecc"
+usage = "unknown"
+pattern = '''\belliptic\.(?:P224|P256|P384|P521)\(\)'''
+
+[rule.tests]
+match = ['''curve := elliptic.P256()''']
+no_match = ['''curve := ecdh.P256()''']
+
+[[rule]]
+id = "GO-ED25519"
+title = "Ed25519 signature"
+targets = ["go"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''\bed25519\.(?:GenerateKey|Sign|NewKeyFromSeed)\('''
+
+[rule.tests]
+match = ['''pub, priv, err := ed25519.GenerateKey(rand.Reader)''']
+no_match = ['''ok := ed25519.Verify(pub, msg, sig)''']
+
+[[rule]]
+id = "GO-DSA"
+title = "DSA key generation"
+targets = ["go"]
+algorithm = "dsa"
+usage = "signature"
+pattern = '''\bdsa\.GenerateKey\('''
+
+[rule.tests]
+match = ['''err := dsa.GenerateKey(&priv, rand.Reader)''']
+no_match = ['''err := dsa.GenerateParameters(&params, rand.Reader, dsa.L2048N256)''']
+
+[[rule]]
+id = "GO-TLS-CURVES"
+title = "TLS CurvePreferences pins classical groups only, disabling Go's default hybrid PQ key exchange"
+targets = ["go"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''\bCurvePreferences\s*(?::=|=(?!=)|:(?!=))\s*\[\]tls\.CurveID\s*\{[^}]*\}'''
+unless = '''mlkem|ml-kem|kyber|sntrup|x25519mlkem|secp256r1mlkem|secp384r1mlkem'''
+unless_scope = "match"
+
+[rule.tests]
+match = ['''cfg := &tls.Config{CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256}}''']
+no_match = ['''cfg := &tls.Config{CurvePreferences: []tls.CurveID{tls.X25519MLKEM768, tls.X25519}}''', '''
+cfg := &tls.Config{CurvePreferences: []tls.CurveID{
+	tls.X25519MLKEM768,
+	tls.X25519,
+}}''']
+
+[[rule]]
+id = "GO-TLS-CURVES-DYNAMIC"
+title = "TLS CurvePreferences set from a variable: verify it includes X25519MLKEM768 (or leave it unset to keep Go's defaults)"
+targets = ["go"]
+algorithm = "ecdh"
+usage = "key-exchange"
+confidence = "medium"
+severity = "low"
+pattern = '''\bCurvePreferences\s*(?::=|=(?!=)|:(?!=))\s*(?!\[\]tls\.CurveID)[\w(]'''
+
+[rule.tests]
+match = ['''cfg.CurvePreferences = curves''']
+no_match = ['''if cfg.CurvePreferences == nil {''']
+
+[[rule]]
+id = "GO-GODEBUG-NOPQ"
+title = "GODEBUG disables post-quantum TLS key exchange"
+targets = ["go", "config", "iac", "any"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''\btls(?:mlkem|kyber)=0\b'''
+
+[rule.tests]
+match = ['''GODEBUG=tlsmlkem=0''']
+no_match = ['''GODEBUG=tlsmlkem=1''']
+
+[[rule]]
+id = "GO-MD5"
+title = "MD5 hash (crypto/md5)"
+targets = ["go"]
+algorithm = "md5"
+usage = "hash"
+pattern = '''\"crypto/md5\"'''
+
+[rule.tests]
+match = ['''import "crypto/md5"''']
+no_match = ['''import "crypto/sha256"''']
+
+[[rule]]
+id = "GO-SHA1"
+title = "SHA-1 hash (crypto/sha1)"
+targets = ["go"]
+algorithm = "sha1"
+usage = "hash"
+pattern = '''\"crypto/sha1\"'''
+
+[rule.tests]
+match = ['''import "crypto/sha1"''']
+no_match = ['''import "crypto/sha512"''']
+
+[[rule]]
+id = "GO-DES"
+title = "DES / 3DES (crypto/des)"
+targets = ["go"]
+algorithm = "des"
+usage = "symmetric"
+pattern = '''\"crypto/des\"'''
+
+[rule.tests]
+match = ['''import "crypto/des"''']
+no_match = ['''import "crypto/aes"''']
+
+[[rule]]
+id = "GO-RC4"
+title = "RC4 (crypto/rc4)"
+targets = ["go"]
+algorithm = "rc4"
+usage = "symmetric"
+pattern = '''\"crypto/rc4\"'''
+
+[rule.tests]
+match = ['''import "crypto/rc4"''']
+no_match = ['''import "crypto/cipher"''']
+
+[[rule]]
+id = "GO-MLKEM"
+title = "ML-KEM / hybrid PQ key exchange"
+targets = ["go"]
+algorithm = "ml-kem"
+usage = "key-exchange"
+pattern = '''\"crypto/mlkem\"|\btls\.(?:X25519MLKEM768|SecP256r1MLKEM768|SecP384r1MLKEM1024)\b'''
+
+[rule.tests]
+match = ['''import "crypto/mlkem"''', '''prefs := []tls.CurveID{tls.X25519MLKEM768}''']
+no_match = ['''import "crypto/ecdh"''']
+
+[[rule]]
+id = "PGP-KEYGEN-GO"
+title = "OpenPGP key generation (RSA unless configured otherwise)"
+targets = ["go"]
+algorithm = "rsa"
+usage = "signature"
+confidence = "medium"
+pattern = '''\bopenpgp\.NewEntity\s*\('''
+
+[rule.tests]
+match = ['''e, err := openpgp.NewEntity("", "RPM Registry", "", nil)''']
+no_match = ['''e, err := openpgp.ReadArmoredKeyRing(r)''']

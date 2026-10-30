@@ -1,0 +1,283 @@
+# PostShor rules: Python
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "PY-RSA-KEYGEN"
+title = "RSA key generation (pyca/cryptography)"
+targets = ["python"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\brsa\.generate_private_key\s*\('''
+
+[rule.tests]
+match = ['''key = rsa.generate_private_key(public_exponent=65537, key_size=2048)''']
+no_match = ['''pub = rsa.generate_public_key(key)''']
+
+[[rule]]
+id = "PY-RSA-PYCRYPTODOME"
+title = "RSA key (PyCryptodome)"
+targets = ["python"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bRSA\.(?:generate|import_key|importKey|construct)\s*\('''
+
+[rule.tests]
+match = ['''key = RSA.generate(2048)''', '''key = RSA.import_key(pem)''']
+no_match = ['''key = RSA.export_key()''']
+
+[[rule]]
+id = "PY-RSA-OAEP"
+title = "RSA-OAEP encryption"
+targets = ["python"]
+algorithm = "rsa"
+usage = "encryption"
+pattern = '''\bPKCS1_OAEP\.new\s*\(|\bpadding\.OAEP\s*\('''
+
+[rule.tests]
+match = ['''cipher = PKCS1_OAEP.new(key)''', '''padding.OAEP(mgf=padding.MGF1(hashes.SHA256()), algorithm=hashes.SHA256(), label=None)''']
+no_match = ['''pad = padding.PSS(mgf=mgf, salt_length=32)''']
+
+[[rule]]
+id = "PY-RSA-PKCS1V15"
+title = "RSA PKCS#1 v1.5 (PyCryptodome)"
+targets = ["python"]
+algorithm = "rsa"
+usage = "unknown"
+pattern = '''\bPKCS1_v1_5\.new\s*\('''
+
+[rule.tests]
+match = ['''signer = PKCS1_v1_5.new(key)''']
+no_match = ['''signer = pss.new(key)''']
+
+[[rule]]
+id = "PY-RSA-PYRSA"
+title = "RSA key generation (python-rsa)"
+targets = ["python"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\brsa\.newkeys\s*\('''
+
+[rule.tests]
+match = ['''(pub, priv) = rsa.newkeys(2048)''']
+no_match = ['''(pub, priv) = keys.newkeys(2048)''']
+
+[[rule]]
+id = "PY-RSA-PYRSA-ENC"
+title = "RSA encryption (python-rsa)"
+targets = ["python"]
+algorithm = "rsa"
+usage = "encryption"
+confidence = "medium"
+pattern = '''\brsa\.encrypt\s*\('''
+
+[rule.tests]
+match = ['''crypto = rsa.encrypt(message, pub)''']
+no_match = ['''crypto = aes.encrypt(message)''']
+
+[[rule]]
+id = "PY-EC-KEYGEN"
+title = "Elliptic-curve key generation"
+targets = ["python"]
+algorithm = "ecc"
+usage = "key-generation"
+pattern = '''\bec\.generate_private_key\s*\(|\bECC\.(?:generate|import_key|construct)\s*\('''
+
+[rule.tests]
+match = ['''key = ec.generate_private_key(ec.SECP256R1())''', '''key = ECC.generate(curve='P-256')''']
+no_match = ['''key = ec.derive_private_key(value, curve)''']
+
+[[rule]]
+id = "PY-ECDH"
+title = "ECDH key agreement"
+targets = ["python"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''\bec\.ECDH\s*\('''
+
+[rule.tests]
+match = ['''shared = key.exchange(ec.ECDH(), peer_public_key)''']
+no_match = ['''sig = key.sign(data, ec.ECDSA(hashes.SHA256()))''']
+
+[[rule]]
+id = "PY-ECDSA"
+title = "ECDSA signature"
+targets = ["python"]
+algorithm = "ecdsa"
+usage = "signature"
+pattern = '''\bec\.ECDSA\s*\(|\bDSS\.new\s*\('''
+
+[rule.tests]
+match = ['''sig = key.sign(data, ec.ECDSA(hashes.SHA256()))''', '''signer = DSS.new(key, 'fips-186-3')''']
+no_match = ['''shared = key.exchange(ec.ECDH(), peer)''']
+
+[[rule]]
+id = "PY-ECDSA-LIB"
+title = "ECDSA key (python-ecdsa)"
+targets = ["python"]
+algorithm = "ecdsa"
+usage = "signature"
+pattern = '''\bSigningKey\.generate\s*\(\s*curve\s*='''
+
+[rule.tests]
+match = ['''sk = SigningKey.generate(curve=NIST256p)''']
+no_match = ['''sk = SigningKey.from_pem(pem)''']
+
+[[rule]]
+id = "PY-EDDSA"
+title = "EdDSA signature key"
+targets = ["python"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''\b(?:Ed25519|Ed448)PrivateKey\.(?:generate|from_private_bytes)\s*\(|\bnacl\.signing\.SigningKey\b'''
+
+[rule.tests]
+match = ['''key = Ed25519PrivateKey.generate()''', '''signing_key = nacl.signing.SigningKey(seed)''']
+no_match = ['''isinstance(key, Ed25519PrivateKey)''']
+
+[[rule]]
+id = "PY-X25519"
+title = "X25519/X448 key agreement"
+targets = ["python"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''\b(?:X25519|X448)PrivateKey\.(?:generate|from_private_bytes)\s*\(|\bnacl\.public\.(?:PrivateKey|Box|SealedBox)\b'''
+
+[rule.tests]
+match = ['''key = X25519PrivateKey.generate()''', '''box = nacl.public.Box(sk, pk)''']
+no_match = ['''isinstance(key, X25519PrivateKey)''']
+
+[[rule]]
+id = "PY-DH"
+title = "Diffie-Hellman key agreement"
+targets = ["python"]
+algorithm = "dh"
+usage = "key-exchange"
+pattern = '''\bdh\.generate_parameters\s*\(|\bDHParameterNumbers\b'''
+
+[rule.tests]
+match = ['''params = dh.generate_parameters(generator=2, key_size=2048)''']
+no_match = ['''params = dh.load_parameters(blob)''']
+
+[[rule]]
+id = "PY-DSA"
+title = "DSA signature key"
+targets = ["python"]
+algorithm = "dsa"
+usage = "signature"
+pattern = '''\bdsa\.generate_private_key\s*\(|\bDSA\.generate\s*\('''
+
+[rule.tests]
+match = ['''key = dsa.generate_private_key(key_size=2048)''', '''key = DSA.generate(2048)''']
+no_match = ['''key = dsa.load_private_key(blob)''']
+
+[[rule]]
+id = "PY-PARAMIKO"
+title = "SSH key via Paramiko"
+targets = ["python"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''\b(RSAKey|ECDSAKey|DSSKey)\.(?:generate|from_private_key(?:_file)?)\s*\('''
+
+[[rule.refine]]
+match = '''ECDSAKey'''
+algorithm = "ecdsa"
+
+[[rule.refine]]
+match = '''DSSKey'''
+algorithm = "dsa"
+
+[rule.tests]
+match = [
+  '''key = paramiko.RSAKey.generate(2048)''',
+  { text = '''key = paramiko.ECDSAKey.from_private_key_file(path)''', algorithm = "ecdsa" },
+  { text = '''key = paramiko.DSSKey.generate(1024)''', algorithm = "dsa" },
+]
+no_match = ['''key = paramiko.Ed25519Key.from_private_key_file(path)''']
+
+[[rule]]
+id = "PY-MD5"
+title = "MD5 hash"
+targets = ["python"]
+algorithm = "md5"
+usage = "hash"
+pattern = '''\bhashlib\.md5\s*\(|\bhashlib\.new\s*\(\s*['\"]md5|\bMD5\.new\s*\('''
+
+[rule.tests]
+match = ['''h = hashlib.md5(data).hexdigest()''', '''h = hashlib.new('md5', data)''']
+no_match = ['''h = hashlib.sha256(data).hexdigest()''']
+
+[[rule]]
+id = "PY-SHA1"
+title = "SHA-1 hash"
+targets = ["python"]
+algorithm = "sha1"
+usage = "hash"
+pattern = '''\bhashlib\.sha1\s*\(|\bhashlib\.new\s*\(\s*['\"]sha1|\bSHA1?\.new\s*\('''
+
+[rule.tests]
+match = ['''h = hashlib.sha1(data).hexdigest()''', '''h = SHA1.new(data)''']
+no_match = ['''h = hashlib.sha512(data).hexdigest()''']
+
+[[rule]]
+id = "PY-DES"
+title = "DES / 3DES cipher"
+targets = ["python"]
+algorithm = "des"
+usage = "symmetric"
+pattern = '''\b(?:DES|DES3)\.new\s*\(|\balgorithms\.TripleDES\s*\('''
+
+[rule.tests]
+match = ['''cipher = DES3.new(key, DES3.MODE_CBC)''', '''algo = algorithms.TripleDES(key)''']
+no_match = ['''cipher = AES.new(key, AES.MODE_GCM)''']
+
+[[rule]]
+id = "PY-RC4"
+title = "RC4 cipher"
+targets = ["python"]
+algorithm = "rc4"
+usage = "symmetric"
+pattern = '''\bARC4\.new\s*\(|\balgorithms\.ARC4\s*\('''
+
+[rule.tests]
+match = ['''cipher = ARC4.new(key)''', '''algo = algorithms.ARC4(key)''']
+no_match = ['''cipher = ChaCha20.new(key=key)''']
+
+[[rule]]
+id = "PY-PYCRYPTO-IMPORT"
+title = "RSA imported from PyCrypto/PyCryptodome"
+targets = ["python"]
+algorithm = "rsa"
+usage = "unknown"
+confidence = "medium"
+pattern = '''^\s*from\s+Crypto\.PublicKey\s+import\s+.*\bRSA\b'''
+
+[rule.tests]
+match = ['''from Crypto.PublicKey import RSA''']
+no_match = ['''from Crypto.Cipher import AES''']
+
+[[rule]]
+id = "PY-OQS"
+title = "Open Quantum Safe (liboqs) usage"
+targets = ["python"]
+algorithm = "pqc"
+usage = "unknown"
+pattern = '''\boqs\.(?:KeyEncapsulation|Signature)\s*\('''
+
+[rule.tests]
+match = ['''kem = oqs.KeyEncapsulation('ML-KEM-768')''']
+no_match = ['''sig = mylib.Signature('x')''']
+
+[[rule]]
+id = "PGP-KEYGEN-PY"
+title = "OpenPGP key generation via python-gnupg (RSA by default)"
+targets = ["python"]
+algorithm = "rsa"
+usage = "signature"
+confidence = "medium"
+pattern = '''\.gen_key_input\s*\('''
+
+[rule.tests]
+match = ['''params = gpg.gen_key_input(name_email='ci@example.com')''']
+no_match = ['''keys = gpg.list_keys()''']

@@ -1,0 +1,185 @@
+# PostShor rules: Rust
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "RS-RSA"
+title = "RSA (RustCrypto rsa)"
+targets = ["rust"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bRsaPrivateKey::new\(|\brsa::(?:Pkcs1v15Encrypt|Oaep)\b'''
+
+[rule.tests]
+match = ['''let key = RsaPrivateKey::new(&mut rng, 2048)?;''']
+no_match = ['''let key = MlKem768::generate(&mut rng);''']
+
+[[rule]]
+id = "RS-ECC"
+title = "Elliptic curve (RustCrypto)"
+targets = ["rust"]
+algorithm = "ecc"
+usage = "unknown"
+pattern = '''\buse\s+(?:p256|p384|p521|k256)::'''
+
+[rule.tests]
+match = ['''use p256::ecdsa::SigningKey;''']
+no_match = ['''use sha2::Sha256;''']
+
+[[rule]]
+id = "RS-ED25519"
+title = "Ed25519 signature"
+targets = ["rust"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''\bed25519_dalek::|\bring::signature::ED25519\b'''
+
+[rule.tests]
+match = ['''use ed25519_dalek::SigningKey;''']
+no_match = ['''use x25519_dalek::StaticSecret;''']
+
+[[rule]]
+id = "RS-X25519"
+title = "X25519 key agreement"
+targets = ["rust"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''\bx25519_dalek::|\bring::agreement::X25519\b'''
+
+[rule.tests]
+match = ['''use x25519_dalek::{EphemeralSecret, PublicKey};''']
+no_match = ['''use ed25519_dalek::SigningKey;''']
+
+[[rule]]
+id = "RS-RING-RSA"
+title = "RSA signature (ring)"
+targets = ["rust"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''\bring::signature::RSA_\w+'''
+
+[rule.tests]
+match = ['''let params = &ring::signature::RSA_PKCS1_2048_8192_SHA256;''']
+no_match = ['''let alg = &ring::signature::ED25519;''']
+
+[[rule]]
+id = "RS-RING-ECDSA"
+title = "ECDSA signature (ring)"
+targets = ["rust"]
+algorithm = "ecdsa"
+usage = "signature"
+pattern = '''\bring::signature::ECDSA_\w+'''
+
+[rule.tests]
+match = ['''let alg = &ring::signature::ECDSA_P256_SHA256_ASN1;''']
+no_match = ['''let alg = &ring::signature::ED25519;''']
+
+[[rule]]
+id = "RS-RING-ECDH"
+title = "ECDH key agreement (ring)"
+targets = ["rust"]
+algorithm = "ecdh"
+usage = "key-exchange"
+pattern = '''\bring::agreement::ECDH_P(?:256|384)\b'''
+
+[rule.tests]
+match = ['''let alg = &ring::agreement::ECDH_P256;''']
+no_match = ['''let alg = &ring::agreement::X25519;''']
+
+[[rule]]
+id = "RS-MD5-SHA1"
+title = "MD5 hash"
+targets = ["rust"]
+algorithm = "md5"
+usage = "hash"
+pattern = '''\buse\s+md5::|\bMd5::new\('''
+
+[rule.tests]
+match = ['''use md5::{Md5, Digest};''']
+no_match = ['''use sha2::{Sha256, Digest};''']
+
+[[rule]]
+id = "RS-SHA1"
+title = "SHA-1 hash"
+targets = ["rust"]
+algorithm = "sha1"
+usage = "hash"
+pattern = '''\buse\s+sha1::|\bSha1::new\('''
+
+[rule.tests]
+match = ['''let mut h = Sha1::new();''']
+no_match = ['''let mut h = Sha256::new();''']
+
+[[rule]]
+id = "RS-PQC"
+title = "Rust post-quantum crate"
+targets = ["rust"]
+algorithm = "pqc"
+usage = "unknown"
+pattern = '''\buse\s+(?:ml_kem|ml_dsa|slh_dsa|pqcrypto\w*|oqs)::'''
+
+[rule.tests]
+match = ['''use ml_kem::MlKem768;''']
+no_match = ['''use rsa::RsaPrivateKey;''']
+
+[[rule]]
+id = "RS-OPENSSL-RSA"
+title = "RSA key (Rust openssl crate)"
+targets = ["rust"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bRsa::(?:generate|private_key_from_pem|private_key_from_der|public_key_from_pem|public_key_from_der|from_private_components|from_public_components)\b|\buse\s+openssl::rsa\b'''
+
+[rule.tests]
+match = ['''let rsa_key = Rsa::generate(2048)?;''', '''use openssl::rsa::Rsa;''']
+no_match = ['''use openssl::sha::sha256;''']
+
+[[rule]]
+id = "RS-OPENSSL-EC"
+title = "Elliptic-curve key (Rust openssl crate)"
+targets = ["rust"]
+algorithm = "ecc"
+usage = "key-generation"
+pattern = '''\bEcKey::(?:generate|private_key_from_pem|private_key_from_der|from_private_components|from_public_key)\b|\buse\s+openssl::ec\b'''
+
+[rule.tests]
+match = ['''let key = EcKey::generate(&group)?;''']
+no_match = ['''let group = EcGroup::from_curve_name(Nid::X9_62_PRIME256V1)?;''']
+
+[[rule]]
+id = "RS-OPENSSL-EDDSA"
+title = "EdDSA key (Rust openssl crate)"
+targets = ["rust"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''\bPKey::generate_ed(?:25519|448)\b'''
+
+[rule.tests]
+match = ['''let key = PKey::generate_ed25519()?;''']
+no_match = ['''let key = PKey::generate_x25519()?;''']
+
+[[rule]]
+id = "RS-OPENSSL-X25519"
+title = "X25519/X448 key (Rust openssl crate)"
+targets = ["rust"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''\bPKey::generate_x(?:25519|448)\b'''
+
+[rule.tests]
+match = ['''let key = PKey::generate_x25519()?;''']
+no_match = ['''let key = PKey::generate_ed25519()?;''']
+
+[[rule]]
+id = "RS-OPENSSL-DERIVE"
+title = "Key agreement (Rust openssl Deriver)"
+targets = ["rust"]
+algorithm = "ecdh"
+usage = "key-exchange"
+confidence = "medium"
+pattern = '''\bDeriver::new\s*\('''
+
+[rule.tests]
+match = ['''let mut deriver = Deriver::new(&key)?;''']
+no_match = ['''let mut signer = Signer::new(MessageDigest::sha256(), &key)?;''']

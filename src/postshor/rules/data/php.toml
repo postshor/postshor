@@ -1,0 +1,128 @@
+# PostShor rules: PHP
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "PHP-PKEY-NEW"
+title = "OpenSSL key generation (defaults to RSA)"
+targets = ["php"]
+algorithm = "rsa"
+usage = "key-generation"
+confidence = "medium"
+pattern = '''\bopenssl_pkey_new\s*\('''
+
+[rule.tests]
+match = ['''$key = openssl_pkey_new(['private_key_bits' => 2048]);''']
+no_match = ['''$key = openssl_pkey_get_private($pem);''']
+
+[[rule]]
+id = "PHP-KEYTYPE-RSA"
+title = "RSA key type"
+targets = ["php"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\bOPENSSL_KEYTYPE_RSA\b'''
+
+[rule.tests]
+match = ['''$cfg = ['private_key_type' => OPENSSL_KEYTYPE_RSA];''']
+no_match = ['''$cfg = ['private_key_type' => OPENSSL_KEYTYPE_EC];''']
+
+[[rule]]
+id = "PHP-KEYTYPE-EC"
+title = "EC key type"
+targets = ["php"]
+algorithm = "ecc"
+usage = "key-generation"
+pattern = '''\bOPENSSL_KEYTYPE_EC\b'''
+
+[rule.tests]
+match = ['''$cfg = ['private_key_type' => OPENSSL_KEYTYPE_EC];''']
+no_match = ['''$cfg = ['private_key_type' => OPENSSL_KEYTYPE_RSA];''']
+
+[[rule]]
+id = "PHP-RSA-ENC"
+title = "RSA encryption (openssl_*)"
+targets = ["php"]
+algorithm = "rsa"
+usage = "encryption"
+pattern = '''\bopenssl_(?:public_encrypt|private_decrypt|seal|open)\s*\('''
+
+[rule.tests]
+match = ['''openssl_public_encrypt($data, $encrypted, $pubKey);''']
+no_match = ['''openssl_encrypt($data, 'aes-256-gcm', $key, 0, $iv, $tag);''']
+
+[[rule]]
+id = "PHP-SIGN"
+title = "Public-key signature (openssl_sign)"
+targets = ["php"]
+algorithm = "rsa"
+usage = "signature"
+confidence = "medium"
+pattern = '''\bopenssl_(?:sign|verify)\s*\('''
+
+[rule.tests]
+match = ['''openssl_sign($data, $signature, $privKey, OPENSSL_ALGO_SHA256);''']
+no_match = ['''openssl_digest($data, 'sha256');''']
+
+[[rule]]
+id = "PHP-SODIUM-BOX"
+title = "X25519 (libsodium)"
+targets = ["php"]
+algorithm = "x25519"
+usage = "key-exchange"
+pattern = '''\bsodium_crypto_(?:box|kx)\w*\s*\('''
+
+[rule.tests]
+match = ['''$ct = sodium_crypto_box($msg, $nonce, $keypair);''']
+no_match = ['''$ct = sodium_crypto_secretbox($msg, $nonce, $key);''']
+
+[[rule]]
+id = "PHP-SODIUM-SIGN"
+title = "Ed25519 (libsodium)"
+targets = ["php"]
+algorithm = "eddsa"
+usage = "signature"
+pattern = '''\bsodium_crypto_sign\w*\s*\('''
+
+[rule.tests]
+match = ['''$sig = sodium_crypto_sign_detached($msg, $secret);''']
+no_match = ['''$h = sodium_crypto_generichash($msg);''']
+
+[[rule]]
+id = "PHP-PHPSECLIB"
+title = "Key generation (phpseclib)"
+targets = ["php"]
+algorithm = "rsa"
+usage = "key-generation"
+pattern = '''\b(?:RSA|EC)::createKey\s*\('''
+
+[rule.tests]
+match = ['''$private = RSA::createKey(2048);''']
+no_match = ['''$private = AES::createKey();''']
+
+[[rule]]
+id = "PHP-MD5"
+title = "MD5 hash"
+targets = ["php"]
+algorithm = "md5"
+usage = "hash"
+confidence = "medium"
+pattern = '''(?<![\w>$:])md5\s*\('''
+
+[rule.tests]
+match = ['''$h = md5($password);''']
+no_match = ['''$h = $this->md5($password);''']
+
+[[rule]]
+id = "PHP-SHA1"
+title = "SHA-1 hash"
+targets = ["php"]
+algorithm = "sha1"
+usage = "hash"
+confidence = "medium"
+pattern = '''(?<![\w>$:])sha1\s*\('''
+
+[rule.tests]
+match = ['''$h = sha1($data);''']
+no_match = ['''$h = Hash::sha1($data);''']

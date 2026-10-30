@@ -1,0 +1,111 @@
+# PostShor rules: Any text file
+# Format: docs/spec/rule-format-v1.md · Rule IDs are permanent: never rename or reuse one.
+
+format = 1
+
+[[rule]]
+id = "GEN-SSH-PUBKEY"
+title = "SSH public key (classical algorithm)"
+targets = ["any"]
+algorithm = "rsa"
+usage = "signature"
+pattern = '''\b(?:ssh-rsa|ecdsa-sha2-nistp\d+|ssh-ed25519|ssh-dss)\s+AAAA[0-9A-Za-z+/]{20,}'''
+
+[[rule.refine]]
+match = '''^ecdsa'''
+algorithm = "ecdsa"
+
+[[rule.refine]]
+match = '''^ssh-ed25519'''
+algorithm = "eddsa"
+
+[[rule.refine]]
+match = '''^ssh-dss'''
+algorithm = "dsa"
+
+[rule.tests]
+match = [
+  { text = '''ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGxjZW5jZWQga2V5IGZvciB0ZXN0aW5n user@host''', algorithm = "eddsa" },
+  '''ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7exampleexample user@host''',
+  { text = '''ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTY= user@host''', algorithm = "ecdsa" },
+  { text = '''ssh-dss AAAAB3NzaC1kc3MAAACBAexampleexample user@host''', algorithm = "dsa" },
+]
+no_match = ['''ssh-ed25519 AAAA user@host''']
+
+[[rule]]
+id = "GEN-ML-KEM"
+title = "ML-KEM reference"
+targets = ["any"]
+algorithm = "ml-kem"
+usage = "key-exchange"
+pattern = '''\b(?:ML[-_]?KEM[-_]?(?:512|768|1024)|MLKEM(?:512|768|1024))\b'''
+flags = ["ignorecase"]
+
+[rule.tests]
+match = ['''kem = ML-KEM-768''']
+no_match = ['''kem = ML-KEMISH''']
+
+[[rule]]
+id = "GEN-HYBRID-KEM"
+title = "Hybrid post-quantum key exchange"
+targets = ["any"]
+algorithm = "hybrid-kem"
+usage = "key-exchange"
+pattern = '''\b(?:X25519MLKEM768|SecP256r1MLKEM768|SecP384r1MLKEM1024|mlkem768x25519-sha256|sntrup761x25519-sha512|X-?Wing)\b'''
+flags = ["ignorecase"]
+
+[rule.tests]
+match = ['''groups = X25519MLKEM768:X25519''']
+no_match = ['''groups = X25519:P-256''']
+
+[[rule]]
+id = "GEN-ML-DSA"
+title = "ML-DSA reference"
+targets = ["any"]
+algorithm = "ml-dsa"
+usage = "signature"
+pattern = '''\bML[-_]?DSA[-_]?(?:44|65|87)\b'''
+flags = ["ignorecase"]
+
+[rule.tests]
+match = ['''sig = ML-DSA-65''']
+no_match = ['''sig = ML-DSA-99''']
+
+[[rule]]
+id = "GEN-SLH-DSA"
+title = "SLH-DSA reference"
+targets = ["any"]
+algorithm = "slh-dsa"
+usage = "signature"
+pattern = '''\bSLH[-_]?DSA\b'''
+flags = ["ignorecase"]
+
+[rule.tests]
+match = ['''sig = SLH-DSA-SHA2-128s''']
+no_match = ['''sig = SLHDSAX''']
+
+[[rule]]
+id = "GEN-KYBER"
+title = "Pre-standard Kyber reference"
+targets = ["any"]
+algorithm = "kyber"
+usage = "key-exchange"
+pattern = '''\b(?:Kyber(?:512|768|1024)|X25519Kyber768(?:Draft00)?)\b'''
+flags = ["ignorecase"]
+
+[rule.tests]
+match = ['''kem = Kyber768''']
+no_match = ['''kem = Kyber''']
+
+[[rule]]
+id = "GEN-DILITHIUM"
+title = "Pre-standard Dilithium reference"
+targets = ["any"]
+algorithm = "dilithium"
+usage = "signature"
+pattern = '''\bDilithium[2-5]\b'''
+flags = ["ignorecase"]
+
+[rule.tests]
+match = ['''sig = Dilithium3''']
+no_match = ['''sig = Dilithium9''']
