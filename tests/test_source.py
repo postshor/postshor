@@ -95,3 +95,20 @@ def test_clean_app_has_no_findings(fixtures):
 def test_exclude_glob(fixtures):
     result = engine.scan(fixtures / "vulnerable_app", engine.ScanOptions(excludes=["java/*", "go"]))
     assert not [f for f in result.findings if f.location.path.startswith(("java/", "go/"))]
+
+
+def test_swift_pqc_rule_matches_cryptokit_type_family():
+    scanner = SourceScanner()
+    text = "let kem = try MLKEM768.PrivateKey()\nlet sig = try MLDSA65.PrivateKey()\nlet name = \"MLKEMish\"\n"
+    found, _ = scanner.scan("Crypto.swift", text, {"swift", "any"})
+    assert {f.location.line for f in found if f.rule_id == "SW-PQC"} == {1, 2}
+
+
+def test_remediation_hints_reflect_verified_facts():
+    # Regression guard for fact-check corrections (sources in docs/sources.md).
+    from postshor.rules.algorithms import LANGUAGE_HINTS
+
+    assert "JDK 27" in LANGUAGE_HINTS["jvm"] and "JEP 527" in LANGUAGE_HINTS["jvm"]
+    assert "Java 24+ provides" not in LANGUAGE_HINTS["jvm"]
+    assert "AWS-LC or BoringSSL" in LANGUAGE_HINTS["python"]
+    assert "24.7" in LANGUAGE_HINTS["javascript"]

@@ -210,7 +210,9 @@ RULES: list[Rule] = [
     Rule("SW-SECKEY-EC", ("swift",), r"\bkSecAttrKeyTypeEC(?:SECPrimeRandom)?\b", "ecc", G, "EC (Security framework)"),
     Rule("SW-INSECURE", ("swift",), r"\bInsecure\.MD5\b", "md5", H, "MD5 (CryptoKit Insecure)"),
     Rule("SW-INSECURE-SHA1", ("swift",), r"\bInsecure\.SHA1\b", "sha1", H, "SHA-1 (CryptoKit Insecure)"),
-    Rule("SW-PQC", ("swift",), r"\b(?:MLKEM768|MLKEM1024|MLDSA65|MLDSA87|XWingMLKEM768X25519)\b", "pqc", U, "CryptoKit post-quantum API"),
+    # Matches the CryptoKit ML-KEM/ML-DSA type family (MLKEM768, MLDSA65, ...) without asserting every
+    # parameter-set name; X-Wing is covered by GEN-HYBRID-KEM.
+    Rule("SW-PQC", ("swift",), r"\bML(?:KEM|DSA)\d{2,4}\b", "pqc", U, "CryptoKit post-quantum API"),
     # ------------------------------------------------------------------ JOSE / JWT (code and config)
     Rule("JOSE-RSA-SIG", CODE + CONFIG, r"['\"](?:RS|PS)(?:256|384|512)['\"]", "rsa", S, "JWT/JOSE RSA signature algorithm", "medium"),
     Rule("JOSE-ECDSA-SIG", CODE + CONFIG, r"['\"]ES(?:256K?|384|512)['\"]", "ecdsa", S, "JWT/JOSE ECDSA signature algorithm", "medium"),

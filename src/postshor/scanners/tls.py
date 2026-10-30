@@ -204,7 +204,7 @@ def report_findings(report: TlsReport) -> list[Finding]:
         findings.append(Finding(
             "TLS-NO-TLS13", "TLS 1.3 not supported", Severity.CRITICAL, Category.NETWORK, "tls-legacy", Usage.PROTOCOL,
             Location(where), "The server does not support TLS 1.3, which is required for hybrid post-quantum key exchange. All traffic is exposed to harvest-now-decrypt-later.",
-            "Enable TLS 1.3, then enable X25519MLKEM768 (OpenSSL 3.5+, BoringSSL, Go 1.24+, rustls, recent Java/.NET).", "high", details))
+            "Enable TLS 1.3, then enable X25519MLKEM768 (OpenSSL 3.5+, BoringSSL, Go 1.24+, JDK 27+, rustls with aws-lc-rs).", "high", details))
     else:
         legacy = "X25519Kyber768Draft00" in report.supported_groups  # postshor:ignore
         findings.append(Finding(

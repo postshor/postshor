@@ -4,8 +4,18 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-30
+
+### Fixed
+
+- Remediation advice for Java no longer says JDK 24 provides post-quantum TLS: JDK 24 adds the ML-KEM/ML-DSA APIs, while hybrid TLS (X25519MLKEM768) arrives in JDK 27 (JEP 527). Same correction in the migration plan and TLS endpoint advice.
+- More precise ecosystem guidance: pyca/cryptography 47+ (only with AWS-LC/BoringSSL builds), Node.js 24.7+, .NET 10 caveats (MLDsa/SlhDsa experimental, no macOS), rustls `prefer-post-quantum`, Go 1.26 defaults.
+- PyCrypto notice now states what is verifiable: no release since 2.6.1, CVE-2013-7459.
+- Rule `SW-PQC` matches the CryptoKit ML-KEM/ML-DSA type family instead of unconfirmed symbol names.
+
 ### Added
 
+- `docs/sources.md`: a source for every factual claim PostShor makes, with verification dates.
 - GitHub Marketplace action in its own repository: [postshor/postshor-action](https://github.com/postshor/postshor-action) (`uses: postshor/postshor-action@v1`).
 
 ### Security
@@ -26,5 +36,6 @@ All notable changes to this project are documented here. The format follows [Kee
 - GitHub Action, pre-commit hook and Dockerfile.
 - SARIF output contains only problems; quantum-safe (INFO) findings stay in the JSON, HTML and CBOM reports.
 
-[Unreleased]: https://github.com/postshor/postshor/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/postshor/postshor/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/postshor/postshor/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/postshor/postshor/releases/tag/v0.1.0

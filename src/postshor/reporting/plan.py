@@ -25,7 +25,7 @@ def build_plan(findings: list[Finding]) -> list[Phase]:
               ["Remove committed private keys and rotate them.",
                "Enable hybrid X25519MLKEM768 on every TLS endpoint and mlkem768x25519-sha256 for SSH.",
                "Replace RSA-OAEP / ECDH / DH key wrapping of long-lived data with ML-KEM (hybrid during transition).",
-               "Upgrade TLS stacks: OpenSSL 3.5+, Go 1.24+, Java 24+, .NET 10, rustls with aws-lc-rs."]),
+               "Upgrade TLS stacks: OpenSSL 3.5+, Go 1.24+, JDK 27+, rustls with aws-lc-rs, OpenSSH 10.0+ for SSH."]),
         Phase("2030", "Phase 2: Replace signatures and identities", "Before 2030 (NIST deprecation)",
               "Signatures can only be forged after Q-day, but roots, firmware keys and PKI take years to rotate.",
               ["Inventory CAs and long-lived certificates; plan ML-DSA (or composite) hierarchies.",

@@ -28,7 +28,7 @@ _PQ = "Provides post-quantum algorithms."
 
 LIBRARIES: dict[str, dict[str, KnownLib]] = {
     "pypi": {
-        "pycrypto": KnownLib("pycrypto", Severity.HIGH, "PyCrypto has been unmaintained since 2013 and has known CVEs. Replace it with pycryptodome or pyca/cryptography."),
+        "pycrypto": KnownLib("pycrypto", Severity.HIGH, "PyCrypto has had no release since 2.6.1 and is affected by CVE-2013-7459 (critical heap buffer overflow). Replace it with pycryptodome or pyca/cryptography."),
         "cryptography": KnownLib("rsa", Severity.INFO, _CLASSICAL),
         "pycryptodome": KnownLib("rsa", Severity.LOW, _CLASSICAL),
         "pycryptodomex": KnownLib("rsa", Severity.LOW, _CLASSICAL),

@@ -59,7 +59,7 @@ ALGORITHMS: dict[str, Algorithm] = {
         Algorithm("rc4", "RC4", _C, "stream-cipher", "AES-256-GCM or ChaCha20-Poly1305", 0, "1.2.840.113549.3.4"),
         Algorithm("blowfish", "Blowfish / RC2", _C, "block-cipher", "AES-256-GCM", 0),
         Algorithm("tls-legacy", "SSL 3.0 / TLS 1.0 / TLS 1.1", _C, "other", "TLS 1.3 (required for hybrid post-quantum key exchange)", 0),
-        Algorithm("pycrypto", "PyCrypto (unmaintained library)", _C, "other", "pycryptodome or pyca/cryptography", 0, note="PyCrypto has been unmaintained since 2013 and has known CVEs."),
+        Algorithm("pycrypto", "PyCrypto (unmaintained library)", _C, "other", "pycryptodome or pyca/cryptography", 0, note="PyCrypto has had no release since 2.6.1 and is affected by CVE-2013-7459 (critical heap buffer overflow)."),
         # --- Grover-weakened symmetric ---
         Algorithm("aes-128", "AES-128", _W, "block-cipher", "AES-256 (required by CNSA 2.0)", 1, "2.16.840.1.101.3.4.1.2", "AES-128 keeps ~64-bit security against Grover; NIST still rates it adequate, CNSA 2.0 does not."),
         # --- Standardized post-quantum (good) ---
@@ -136,16 +136,17 @@ def remediation(algorithm_id: str, usage: Usage, language: str | None = None) ->
     return text
 
 
-# Where post-quantum support lives in each ecosystem. Phrased conservatively: check versions.
+# Where post-quantum support lives in each ecosystem. Every statement here is sourced in
+# docs/sources.md; update both together. Phrased conservatively: users should check versions.
 LANGUAGE_HINTS = {
-    "python": "Python options: liboqs-python (Open Quantum Safe, good for prototyping) or newer pyca/cryptography releases (check release notes for ML-KEM/ML-DSA).",
-    "go": "Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default.",
-    "jvm": "Java 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497); Bouncy Castle supports them on older JDKs.",
-    "javascript": "JS options: @noble/post-quantum, or Node.js builds linked against OpenSSL 3.5+.",
+    "python": "Python: pyca/cryptography 47+ has ML-KEM and ML-DSA APIs, but only when built against AWS-LC or BoringSSL (the standard wheels use OpenSSL); liboqs-python (Open Quantum Safe) is suitable for prototyping.",
+    "go": "Go 1.24+ ships crypto/mlkem and enables X25519MLKEM768 in crypto/tls by default (Go 1.26 also enables SecP256r1MLKEM768 and SecP384r1MLKEM1024); leave Config.CurvePreferences unset to keep the defaults.",
+    "jvm": "Java: JDK 24+ provides ML-KEM (JEP 496) and ML-DSA (JEP 497) APIs; hybrid post-quantum TLS (X25519MLKEM768) arrives in JDK 27 (JEP 527). Bouncy Castle 1.79+ provides ML-KEM, ML-DSA and SLH-DSA on older JDKs.",
+    "javascript": "JavaScript: Node.js 24.7+ supports ML-KEM and ML-DSA in node:crypto and WebCrypto; @noble/post-quantum is a pure-JS option.",
     "c": "OpenSSL 3.5+ supports ML-KEM, ML-DSA and SLH-DSA and offers X25519MLKEM768 in TLS by default; liboqs for other algorithms.",
-    "csharp": ".NET 10 adds MLKem, MLDsa and SlhDsa; Bouncy Castle .NET for earlier runtimes.",
-    "rust": "Rust options: RustCrypto ml-kem / ml-dsa crates; rustls with aws-lc-rs supports X25519MLKEM768.",
-    "swift": "Apple CryptoKit (iOS/macOS 26+) provides MLKEM768/1024, MLDSA65/87 and X-Wing hybrid KEM.",
-    "php": "PHP: route post-quantum operations through a service or OpenSSL 3.5+ extension; native PHP PQC support is immature.",
-    "ruby": "Ruby: Ruby's OpenSSL bindings follow the linked OpenSSL; OpenSSL 3.5+ exposes ML-KEM/ML-DSA.",
+    "csharp": ".NET 10 adds MLKem (stable) plus MLDsa and SlhDsa (experimental, SYSLIB5006); not supported on macOS, and Linux needs OpenSSL 3.5+. Bouncy Castle .NET for earlier runtimes.",
+    "rust": "Rust: RustCrypto ml-kem / ml-dsa crates; rustls with the aws-lc-rs provider supports X25519MLKEM768 (make it preferred with the prefer-post-quantum feature, rustls 0.23.22+).",
+    "swift": "Apple CryptoKit (iOS/macOS 26+) adds ML-KEM and ML-DSA types (for example MLKEM768, MLDSA65) and post-quantum HPKE (X-Wing).",
+    "php": "PHP: no mainstream native ML-KEM/ML-DSA API is established yet; route post-quantum operations through a service or library that supports them.",
+    "ruby": "Ruby: post-quantum support depends on the openssl gem and the linked OpenSSL (3.5+ implements ML-KEM/ML-DSA); check that your gem version exposes them.",
 }
